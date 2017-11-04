@@ -1,0 +1,56 @@
+body{
+
+background-image: url("classroom3.jpg");
+background-repeat: no-repeat;
+background-size: 100%;
+}
+
+
+
+input[type=text]{
+	background-color: transparent;
+	color: black;
+	border: solid #ccc;
+	padding: 4px;
+	border-radius: 4px;
+	box-sizing: border-box;
+}
+input[type=submit]{
+	background-color: transparent;
+	color: black;
+	border: solid #ccc;
+	padding: 4px;
+	border-radius: 4px;
+	box-sizing: border-box;
+	font-weight:bold;
+}
+input[type=text]:focus {
+	background-color: #f9ebf2;
+
+
+}
+input[type=button]{
+	background-color: transparent;
+	color: black;
+	border: solid #ccc;
+	padding: 4px;
+	border-radius: 4px;
+	box-sizing: border-box;
+	font-weight:bold;
+
+}
+
+
+li {
+    background: url('/static/searchicon.png') no-repeat left top;
+    background-position: left;
+    display: inline-block;
+    width: 24px;
+    height: 30px;
+    position: left;
+    left: 22px;
+    top: 3px;
+
+
+
+}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='style.css')}}">
+</head>
+
+<body>
+    <form action = "/searchGet" method = "POST">
+    <li><input type="text" name = "search"/></li><br>
+    </form>
+
+    <br><br><br>
+    <div style="float:right; width:790px; margin:0 auto;">
+        <form action="/view">
+            <input type="submit" value="View All" />
+        </form>
+    </div>
+	<div style="width:340px; margin:0 auto;"><form action = "{{ url_for('adder') }}" method = "POST">
+    	<input type="submit" value="Add" />
+        <font color="white">
+                    <div class="container">
+                        {% include 'message.html' %}
+                        {% block body %}{% endblock%}
+                    </div>
+        </font>
+	</form></div><br>
+        <table  border = 1 style="margin: auto;">
+	<thead>
+
+    	<td bgcolor="#f9ebf2"><font color="#b97a46">Title</font></td>
+    	<td bgcolor="#f9ebf2"><font color="#b97a46">Year Published</font></td>
+		<td bgcolor="#f9ebf2"><font color="#b97a46">Type</font></td>
+		<td bgcolor="#f9ebf2"><font color="#b97a46">Author</font></td>
+		<td bgcolor="#f9ebf2"><font color="#b97a46">Edition</font></td>
+
+	</thead>
+		{% for stud in studs %}
+		<tr>
+			<form action = "{{ url_for('deletefunc') }}" method = "POST">
+            <td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[1]}}</font></td>
+            <td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[2]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[3]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[4]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[5]}}</font></td>
+			<td><input type="hidden" name="Store" value = {{stud[0]}}></td>
+			<td><input type ="submit" value ="Delete"></td>
+			<td><input type ="submit" formaction = "/updateBook" value ="Update"></td>
+			</form>
+		</tr>
+		{% endfor %}
+
+
+	</table>
+
+
+</body>
+
+
+
+</html>
