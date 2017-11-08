@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+    {% from "_helperhtml.html" import render_field %}
+<form method='post' action="/signup">
+  <dl>
+    {{ render_field(form.hidden_tag) }}
+    {{ render_field(form.username) }}
+    {{ render_field(form.password) }}
+    {{ render_field(form.first_name ) }}
+    {{ render_field(form.last_name) }}
+    {{ render_field(form.middle_initial) }}
+    {{ render_field(form.contact) }}
+    {{ render_field(form.sex) }}
+    {{ form.month }}
+    {{ form.day }}
+    {{ form.year }}
+  </dl>
+  <p>{{ form.submit }}
+</form>
+Already have an account?<a href="/login">Login</a>
+</body>
+</html>
+
