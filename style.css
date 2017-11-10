@@ -1,0 +1,513 @@
+body{
+	background-image: url(bg.jpg);
+	background-attachment:fixed;
+	background-size:35%;
+	}
+
+.a{
+	position: absolute;
+		background-color: beige;
+		top: 21px;
+		left:54px;
+		width: 1250px;
+		height: 600px;
+		opacity: .6;
+}
+
+.a1{
+	position: absolute;
+	background-color: white;
+	top:30px;
+	width: 80px;
+	height: 20px;
+	right: 70px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: center;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.a1:hover {
+	background-color: gray;
+	color:white;
+
+}
+.a2{
+	position: absolute;
+	background-color: white;
+	top:30px;
+	width: 80px;
+	height: 20px;
+	right: 155px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: center;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.a2:hover {
+	background-color: gray;
+	color:white;
+
+}
+.a3{
+	position: absolute;
+	background-color: transparent;
+	bottom:45px;
+	width: 35px;
+	height: 20px;
+	left: 60px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: center;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.a3:hover {
+	background-color: gray;
+	color:white;
+
+}
+.a4{
+	position: absolute;
+	background-color: transparent;
+	bottom:45px;
+	width: 65px;
+	height: 20px;
+	right: 75px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: center;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.a4:hover {
+	background-color: gray;
+	color:white;
+
+}
+.a5{
+	position: absolute;
+	background-color: white;
+	top:30px;
+	width: 120px;
+	height: 20px;
+	left: 70px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: center;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.a5:hover {
+	background-color: gray;
+	color:white;
+
+}
+.titlee{
+	position: absolute;
+	background-color: transparent;
+	top:110px;
+	width: 700px;
+	height: 100px;
+	left: 180px;
+	font-family: Century Gothic;
+	font-size: 80px;
+	color: black;
+	text-align: left;
+}
+
+.title{
+	position: absolute;
+	background-color: transparent;
+	top:147px;
+	width: 700px;
+	height: 300px;
+	left: 160px;
+	font-family: Century Gothic;
+	font-size: 180px;
+	color: black;
+	text-align: left;
+}
+
+.title1{
+	position: absolute;
+	background-color: transparent;
+	top:140px;
+	width: 700px;
+	height: 300px;
+	left: 390px;
+	font-family: Century Gothic;
+	font-size: 175px;
+	color: black;
+	text-align: left;
+}
+.title2{
+	position: absolute;
+	background-color: blue;
+	top:230px;
+	width: 60px;
+	height: 59px;
+	left: 328px;
+	border-radius: 90%;
+}
+.title21a{
+	position: absolute;
+	background-color: white;
+	top:200px;
+	width: 120px;
+	height: 120px;
+	left: 280px;
+	color: white;
+	text-align: left;
+	border-radius: 90%;
+}
+.title21b{
+	position: absolute;
+	background-color: white;
+	top:200px;
+	width: 120px;
+	height: 120px;
+	left: 440px;
+	border-radius: 90%;
+}
+.title2a{
+	position: absolute;
+	background-color: blue;
+	top:230px;
+	width: 60px;
+	height: 59px;
+	left: 450px;
+	text-align: left;
+	border-radius: 90%;
+}
+
+.title3{
+	position: absolute;
+	background-color: transparent;
+	top:80px;
+	width: 700px;
+	height: 300px;
+	left: 330px;
+	font-family: Century Gothic;
+	font-size: 190px;
+	color: black;
+	text-align: left;
+}
+.title4{
+	position: absolute;
+	background-color: transparent;
+	top:80px;
+	width: 700px;
+	height: 300px;
+	left: 450px;
+	font-family: Century Gothic;
+	font-size: 190px;
+	color: black;
+	text-align: left;
+}
+.shelf{
+	position: absolute;
+	background-color: transparent;
+	top:245px;
+	width: 450px;
+	height: 0px;
+	left: 674px;
+	font-family: Century;
+	font-size: 80px;
+	color: white;
+	text-align: left;
+}
+.defn{
+	position: absolute;
+	background-color: transparent;
+	bottom:180px;
+	width: 1000px;
+	height: 100px;
+	left: 200px;
+	font-family: Century Gothic;
+	color: black;
+	font-size: 18px;
+	text-align: left;
+}
+.logo{
+	position: absolute;
+	background-color: white;
+	background-image: url(loggo.jpg);
+	top:100px;
+	width: 345px;
+	height: 85px;
+	left: 510px;
+	border-radius: 5%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: center;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.login1{
+	position: absolute;
+	background-color: transparent;
+	top:220px;
+	width: 100px;
+	height: 20px;
+	left: 630px;
+	font-family: Century;
+	font-size: 20px;
+	color: black;
+	text-align: left;
+}
+.loginbut{
+	position: absolute;
+	background-color: cyan;
+	top:460px;
+	width: 80px;
+	height: 30px;
+	left: 635px;
+	border-radius: 10%;
+	font-family: Century;
+	font-size: 18px;
+	color: black;
+	text-align: center;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.loginbut:hover {
+	background-color: gray;
+	color:cyan;
+}
+
+.mes{
+	position: absolute;
+	background-color: transparent;
+	top:75px;
+	width: 250px;
+	height:20px;
+	left: 570px;
+	font-family: Century Gothic;
+	color: black;
+	font-size: 20px;
+	text-align: left;
+}
+.login-card {
+  padding: 20px;
+  width: 250px;
+  background-color: white;
+  margin: 200px auto 10px;
+  border-radius: 2px;
+  box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.login-card h1 {
+  font-weight: 100;
+  text-align: center;
+  font-size: 2.3em;
+}
+
+.login-card input[type=submit] {
+  width: 100%;
+  display: block;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.login-card input[type=text], input[type=password] {
+  height: 40px;
+  font-size: 14px;
+  width: 100%;
+  margin-bottom: 10px;
+  -webkit-appearance: none;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-top: 1px solid #c0c0c0;
+
+  padding: 0 8px;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+.login-card input[type=text]:hover, input[type=password]:hover {
+  border: 1px solid #b9b9b9;
+  border-top: 1px solid #a0a0a0;
+  -moz-box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  -webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.login {
+  text-align: center;
+  font-size: 14px;
+  font-family: 'Arial', sans-serif;
+  font-weight: 700;
+  height: 36px;
+  padding: 0 8px;
+
+}
+
+.login-submit {
+ 
+  border: 0px;
+  color: #fff;
+  text-shadow: 0 1px rgba(0,0,0,0.1); 
+  background-color: #4d90fe;
+
+ 
+}
+
+.login-submit:hover {
+  border: 0px;
+  text-shadow: 0 1px rgba(0,0,0,0.3);
+  background-color: #357ae8;
+
+}
+
+.login-card a {
+  text-decoration: none;
+  color: #666;
+  font-weight: 400;
+  text-align: center;
+  display: inline-block;
+  opacity: 0.6;
+  transition: opacity ease 0.5s;
+}
+
+.login-card a:hover {
+  opacity: 1;
+}
+.albacete{
+	position: absolute;
+	background-color: white;
+	top:220px;
+	width: 350px;
+	height:150px;
+	left: 75px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: left;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.albacete:hover {
+	background-color: yellow;
+
+}
+.ratunil{
+	position: absolute;
+	background-color: white;
+	top:220px;
+	width: 350px;
+	height:150px;
+	left: 510px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: left;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.ratunil:hover {
+	background-color: yellow;
+
+}
+.sanchez{
+	position: absolute;
+	background-color: white;
+	top:220px;
+	width: 350px;
+	height:150px;
+	right: 75px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: left;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.sanchez:hover {
+	background-color: yellow;
+}
+.talledo{
+	position: absolute;
+	background-color: white;
+	top:400px;
+	width: 350px;
+	height:150px;
+	left: 100px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: left;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.talledo:hover {
+	background-color: yellow;
+
+}
+.baguio{
+	position: absolute;
+	background-color: white;
+	top:400px;
+	width: 350px;
+	height:150px;
+	left: 510px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: left;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.baguio:hover {
+	background-color: yellow;
+
+}
+.gac_ang{
+	position: absolute;
+	background-color: white;
+	top:400px;
+	width: 350px;
+	height:150px;
+	right: 100px;
+	border-radius: 10%;
+	font-family: Century Gothic;
+	font-size: 14px;
+	color: black;
+	text-align: left;
+	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+}
+.gac_ang:hover {
+	background-color: yellow;
+
+}
+#main{
+	
+}
+.ratunil_img{
+	background-image: url(gg.jpg);
+	position: absolute;
+	top: 5px;
+	width: 150px;
+	height: 140px;
+	left: 195px;
+	border-radius: 5%;
+}
