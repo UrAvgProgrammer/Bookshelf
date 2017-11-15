@@ -1,8 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<link rel="stylesheet" type="text/css" href="{{url_for('static',filename='style.css')}}">
+  <title>Bootstrap Example</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 </head>
 
 <body>
@@ -25,27 +29,40 @@
                     </div>
         </font>
 	</form></div><br>
-        <table  border = 1 style="margin: auto;">
+        <table  class="table table-bordered">
 	<thead>
-
-    	<td bgcolor="#f9ebf2"><font color="#b97a46">Title</font></td>
-    	<td bgcolor="#f9ebf2"><font color="#b97a46">Year Published</font></td>
-		<td bgcolor="#f9ebf2"><font color="#b97a46">Type</font></td>
-		<td bgcolor="#f9ebf2"><font color="#b97a46">Author</font></td>
-		<td bgcolor="#f9ebf2"><font color="#b97a46">Edition</font></td>
+		<td>Rate</td>
+    	<td>Title</td>
+    	<td>Year Published</td>
+		<td>Type</td>
+		<td>Author</td>
+		<td>Edition</td>
+		<td>ISBN</td>
+		<td>Rating</td>
 
 	</thead>
 		{% for stud in studs %}
 		<tr>
 			<form action = "{{ url_for('deletefunc') }}" method = "POST">
+
+				<td><input type="radio" name="rate" value=0 checked> None
+				<input type="radio" name="rate" value=1 /> 1
+				<input type="radio" name="rate" value=2 /> 2
+  				<input type="radio" name="rate" value=3 /> 3
+				<input type="radio" name="rate" value=4 /> 4
+				<input type="radio" name="rate" value=5 /> 5
+				<input type="submit" class="btn" formaction="/" value="Submit">
+                </td>
             <td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[1]}}</font></td>
             <td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[2]}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[3]}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[4]}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[5]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[6]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[7]}}</font></td>
 			<td><input type="hidden" name="Store" value = {{stud[0]}}></td>
-			<td><input type ="submit" value ="Delete"></td>
-			<td><input type ="submit" formaction = "/updateBook" value ="Update"></td>
+			<td><input type ="submit" class="btn btn-primary" value ="Delete"></td>
+			<td><input type ="submit" class="btn btn-primary" formaction = "/updateBook" value ="Update"></td>
 			</form>
 		</tr>
 		{% endfor %}

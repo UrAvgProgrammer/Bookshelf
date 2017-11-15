@@ -8,6 +8,7 @@ class Forms(Form):
     typeNew = StringField('Book Type', [validators.Length(min=1,max=60)])
     authorNew = StringField('Author', [validators.Length(min=1,max=60)])
     editionNew = StringField('Edition', [validators.Length(min=1,max=60)])
+    isbnNew = StringField('ISBN', [validators.Length(min=1,max=60)])
     submit = SubmitField("Submit")
 
 class BookForms(Form):

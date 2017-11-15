@@ -7,11 +7,43 @@ from wtforms import Form, StringField, TextAreaField, PasswordField, validators
 
 
 
-@app.route('/')
+@app.route('/' , methods = ['POST', 'GET'])
 def index():
     models.Bookshelf.db()
     studs = models.Bookshelf.view()
-    return render_template("personalshelf.html",studs = studs)
+    if request.method == 'POST':
+        cursor = mysql.get_db().cursor()
+        ratingNew = int(request.form['rate'])
+        bookidNew = request.form['Store']
+
+        sql = "SELECT rating FROM shelf WHERE bookid = '%s'" % (bookidNew,)
+        cursor.execute(sql)
+        for i in cursor.fetchall():
+            rate = float(i[0])
+
+        sql = "SELECT raters FROM shelf WHERE bookid = '%s'" % (bookidNew,)
+        cursor.execute(sql)
+        for j in cursor.fetchall():
+            raters = int(j[0])
+
+        dividend = ratingNew+rate
+        ratersTot = raters+1
+
+        total = float(dividend/ratersTot)
+
+        sql = "UPDATE shelf set rating = '%f' where bookid = '%s'" % (total,bookidNew)
+        cursor.execute(sql)
+        mysql.get_db().commit()
+
+        sql = "UPDATE shelf set raters = '%d' where bookid = '%s'" % (ratersTot,bookidNew)
+        cursor.execute(sql)
+        mysql.get_db().commit()
+
+        studs = models.Bookshelf.view()
+        return render_template("personalshelf.html",studs = studs)
+
+    else:
+        return render_template("personalshelf.html",studs = studs)
 
 
 @app.route('/adder', methods = ['POST', 'GET'])
@@ -24,9 +56,10 @@ def adder():
         typeNew = form.typeNew.data
         authorNew = form.authorNew.data
         editionNew = form.editionNew.data
+        isbnNew = form.isbnNew.data
 
         if form.validate():
-            book = models.Bookshelf(title = titleNew, year = yearNew, type = typeNew , author = authorNew, edition = editionNew)
+            book = models.Bookshelf(title = titleNew, year = yearNew, type = typeNew , author = authorNew, edition = editionNew, isbn = isbnNew, rating = 0, raters = 0)
             book.add()
             flash('Book successfully added', 'success')
             return render_template("add.html", form=form)
@@ -87,10 +120,11 @@ def update():
         typeNew = form.typeNew.data
         authorNew = form.authorNew.data
         editionNew = form.editionNew.data
+        isbnNew = form.isbnNew.data
 
 
         if form.validate():
-            models.Bookshelf.update(bookidNew,titleNew,yearNew,typeNew,authorNew,editionNew)
+            models.Bookshelf.update(bookidNew,titleNew,yearNew,typeNew,authorNew,editionNew,isbnNew)
             flash('Successfully Updated', 'success')
             return render_template("update.html", form = form)
         elif not form.validate():
@@ -115,7 +149,7 @@ def searchGet():
         search1 = "%"+search+"%"
 
 
-        sql = "SELECT * FROM shelf WHERE title LIKE '%s' or year LIKE '%s' or type LIKE '%s' or author LIKE '%s' or edition LIKE '%s'" % (search1,search1,search1,search1,search1)
+        sql = "SELECT * FROM shelf WHERE title LIKE '%s' or year LIKE '%s' or type LIKE '%s' or author LIKE '%s' or edition LIKE '%s' or isbn LIKE '%s'" % (search1,search1,search1,search1,search1,search1)
         cursor.execute(sql)
         studs = cursor.fetchall()
 
