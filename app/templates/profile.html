@@ -1,0 +1,30 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+<title>{% block title %}Profile{% endblock title %}</title>
+{% block styles %}
+        {{ super() }}
+        <link href="/static/design1.css" rel="stylesheet">
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script type ="text/javascript" src="{{ url_for('static', filename = "editform.js") }}"></script>
+{% endblock %}
+
+
+{% block content %}
+    <a href="/home" style="float: left;margin-left: 15px;">Home</a>
+    <a href="/logout" style="float: right;margin-right: 15px;">Log out</a>
+    <br><h1>Profile </h1><br>
+    <form method="POST" action="/profile">
+  <dl>
+    {{ form.csrf_token }}
+    {{ wtf.form_field(form.first_name, **{'value':data.first_name, 'placeholder':data.first_name})}}
+    {{ wtf.form_field(form.last_name, **{'value':data.last_name, 'placeholder':data.last_name})}}
+    {{ wtf.form_field(form.middle_initial, **{'value':data.middle_initial, 'placeholder':data.middle_initial})}}
+    {{ wtf.form_field(form.contact, **{'value':data.contact_number, 'placeholder':data.contact_number})}}
+    {{ wtf.form_field(form.submit) }}<input class="btn btn-default" id="submit" name="reset" type="reset" value="Reset">
+  </dl>
+    </form>
+{% endblock %}

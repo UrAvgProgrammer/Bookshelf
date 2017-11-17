@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Welcome human</title>
-</head>
-<body>
-    <a href="/logout" style="float: right;">Log out</a>
-    <h1>Welcome, {{ name }}!</h1>
-</body>
-</html>
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Homepage
+{% endblock %}
+
+{% block content %}
+       <a href="/logout" style="float: right;margin-right: 15px;">Log out</a>
+     <a href="/profile" style="float: right;margin-right: 15px;">Profile</a>
+    <h1>Welcome {{ name.first_name }}, </h1>
+{% endblock %}

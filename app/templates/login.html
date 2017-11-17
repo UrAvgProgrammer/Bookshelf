@@ -1,26 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Log in</title>
-</head>
-<body>
-    {% from "_helperhtml.html" import render_field %}
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Log in
+{% endblock %}
+
+{% block styles %}
+        {{ super() }}
+        <link href="/static/design.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <h1>Welcome to Bookshelf</h1><br>
 <form method='post' action="/login">
   <dl>
-    {{ render_field(form.hidden_tag) }}
-    {{ render_field(form.username) }}
-    {{ render_field(form.password) }}
+    {{ form.csrf_token }}
+    {{ wtf.form_field(form.username) }}
+    {{ wtf.form_field(form.password) }}
       {% with messages = get_flashed_messages() %}
         {% if messages %}
             {% for message in messages %}
-                {{ message }}
+                <p style="color: #a94442">{{ message }}</p>
             {% endfor %}
         {% endif %}
     {% endwith %}
   </dl>
   <p>{{ form.submit }}
 </form>
-Dont have an account?<a href="/signup">Sign up here</a>
-</body>
-</html>
+Dont have an account? <a href="/signup">Sign up here.</a>
+{% endblock %}

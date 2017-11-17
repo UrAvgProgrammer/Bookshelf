@@ -1,28 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Register</title>
-</head>
-<body>
-    {% from "_helperhtml.html" import render_field %}
-<form method='post' action="/signup">
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block styles %}
+{{ super() }}
+        <link href="/static/design.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<form method='post' action="/signup" autocomplete="off">
   <dl>
-    {{ render_field(form.hidden_tag) }}
-    {{ render_field(form.username) }}
-    {{ render_field(form.password) }}
-    {{ render_field(form.first_name ) }}
-    {{ render_field(form.last_name) }}
-    {{ render_field(form.middle_initial) }}
-    {{ render_field(form.contact) }}
-    {{ render_field(form.sex) }}
-    {{ form.month }}
-    {{ form.day }}
-    {{ form.year }}
+    {{ form.csrf_token }}
+    {{ wtf.form_field(form.username) }}
+    {{ wtf.form_field(form.password) }}
+    {{ wtf.form_field(form.confirm) }}
+    {{ wtf.form_field(form.first_name ) }}
+    {{ wtf.form_field(form.last_name) }}
+    {{ wtf.form_field(form.middle_initial) }}
+    {{ wtf.form_field(form.contact) }}
+    {{ wtf.form_field(form.sex) }}
+    {{ wtf.form_field(form.month) }}
+    {{ wtf.form_field(form.day) }}
+    {{ wtf.form_field(form.year) }}
   </dl>
   <p>{{ form.submit }}
 </form>
 Already have an account?<a href="/login">Login</a>
-</body>
-</html>
+{% endblock %}
 

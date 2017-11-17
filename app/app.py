@@ -8,6 +8,7 @@ from flask_bootstrap import Bootstrap
 app = Flask(__name__)
 app.secret_key = '31498657699432922335'
 app.debug = True
+bootstrap = Bootstrap(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -20,17 +21,20 @@ def load_user(user_id):
 
 @app.route('/')
 def index():
+    if current_user.is_authenticated is True:
+        return redirect(url_for('home'))
     return render_template('index.html')
 
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    db.create_all()
     form = RegistrationForm()
-    if form.validate_on_submit():
+    if current_user.is_authenticated is True:
+        return redirect(url_for('home'))
+    elif form.validate_on_submit():
         hashed = generate_password_hash(form.password.data, method='sha256')
         new_user = Users(form.username.data, hashed, form.first_name.data,
-                         form.last_name.data, form.contact.data, form.sex.data,
+                         form.last_name.data, form.middle_initial.data, form.contact.data, form.sex.data,
                          form.year.data+'-'+form.month.data+'-'+form.day.data)
         db.session.add(new_user)
         db.session.commit()
@@ -42,7 +46,9 @@ def signup():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm()
-    if form.validate_on_submit():
+    if current_user.is_authenticated is True:
+        return redirect(url_for('home'))
+    elif form.validate_on_submit():
         user = Users.query.filter_by(username=form.username.data).first()
         if user:
             if check_password_hash(user.password, form.password.data):
@@ -59,7 +65,7 @@ def login():
 @app.route('/home')
 @login_required
 def home():
-    return render_template('dashboard.html', name=current_user.first_name)
+    return render_template('dashboard.html', name=current_user)
 
 
 @app.route('/logout')
@@ -69,5 +75,18 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form = EditProfile()
+    if form.validate_on_submit():
+        update = Users.query.filter_by(id=current_user.id).first()
+        update.first_name = form.first_name.data
+        update.last_name = form.last_name.data
+        update.middle_initial = form.middle_initial.data
+        update.contact_number = form.contact.data
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template('profile.html', data=current_user, form=form)
 if __name__ == '__main__':
     app.run()
