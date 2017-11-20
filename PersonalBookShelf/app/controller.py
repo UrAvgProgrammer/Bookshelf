@@ -1,54 +1,43 @@
 from flask import Flask, render_template, request, flash, redirect, url_for, session
-import models
+from models import *
 from forms import Forms, BookForms
-from app import app, mysql
 from wtforms import Form, StringField, TextAreaField, PasswordField, validators
+from app import app, db
 
 
-
-
-@app.route('/' , methods = ['POST', 'GET'])
+@app.route('/', methods = ['POST', 'GET'])
 def index():
-    models.Bookshelf.db()
-    studs = models.Bookshelf.view()
+    db.create_all()
+    studs = Shelf.query.all()
+
     if request.method == 'POST':
-        cursor = mysql.get_db().cursor()
         ratingNew = int(request.form['rate'])
         bookidNew = request.form['Store']
 
-        sql = "SELECT rating FROM shelf WHERE bookid = '%s'" % (bookidNew,)
-        cursor.execute(sql)
-        for i in cursor.fetchall():
-            rate = float(i[0])
 
-        sql = "SELECT raters FROM shelf WHERE bookid = '%s'" % (bookidNew,)
-        cursor.execute(sql)
-        for j in cursor.fetchall():
-            raters = int(j[0])
+
+        userRate = Shelf.query.filter_by(bookid=bookidNew).first()
+        rate = userRate.rating
+        raters = userRate.raters
 
         dividend = ratingNew+rate
         ratersTot = raters+1
 
         total = float(dividend/ratersTot)
 
-        sql = "UPDATE shelf set rating = '%f' where bookid = '%s'" % (total,bookidNew)
-        cursor.execute(sql)
-        mysql.get_db().commit()
+        userRate.rating = total
+        userRate.raters = ratersTot
+        db.session.commit()
 
-        sql = "UPDATE shelf set raters = '%d' where bookid = '%s'" % (ratersTot,bookidNew)
-        cursor.execute(sql)
-        mysql.get_db().commit()
-
-        studs = models.Bookshelf.view()
-        return render_template("personalshelf.html",studs = studs)
+        studs = Shelf.query.all()
+        return render_template("personalshelf.html", studs=studs)
 
     else:
-        return render_template("personalshelf.html",studs = studs)
+        return render_template("personalshelf.html", studs=studs)
 
 
 @app.route('/adder', methods = ['POST', 'GET'])
 def adder():
-
     form = Forms(request.form)
     if request.method == 'POST':
         titleNew = form.titleNew.data
@@ -59,8 +48,9 @@ def adder():
         isbnNew = form.isbnNew.data
 
         if form.validate():
-            book = models.Bookshelf(title = titleNew, year = yearNew, type = typeNew , author = authorNew, edition = editionNew, isbn = isbnNew, rating = 0, raters = 0)
-            book.add()
+            book = Shelf(titleNew,yearNew,typeNew,authorNew,editionNew,isbnNew,0,0)
+            db.session.add(book)
+            db.session.commit()
             flash('Book successfully added', 'success')
             return render_template("add.html", form=form)
 
@@ -77,20 +67,18 @@ def adder():
 @app.route('/view')
 def view():
 
-    studs = models.Bookshelf.view()
+    studs = Shelf.query.all()
     return render_template("personalshelf.html",studs = studs)
+
 
 @app.route('/delete', methods = ['POST', 'GET'])
 def deletefunc():
     deleteStore = request.form['Store']
-    studs = models.Bookshelf.view()
+    studs = Shelf.query.all()
     if request.method == 'POST':
-        cursor = mysql.get_db().cursor()
-
-        sql = "DELETE from shelf where bookid = '%s' " % (deleteStore,)
-        cursor.execute(sql)
-        mysql.get_db().commit()
-        studs = models.Bookshelf.view()
+        Shelf.query.filter_by(bookid=deleteStore).delete()
+        db.session.commit()
+        studs = Shelf.query.all()
         flash('Book Successfully deleted', 'success')
         return render_template("personalshelf.html",studs = studs)
 
@@ -100,7 +88,7 @@ def deletefunc():
 @app.route('/updateBook', methods = ['POST', 'GET'])
 def updateGet():
     updateStore = request.form['Store']
-    studs = models.Bookshelf.view()
+    studs = Shelf.query.all()
     if request.method == 'POST':
 
         session['bookidNew'] = updateStore
@@ -124,7 +112,18 @@ def update():
 
 
         if form.validate():
-            models.Bookshelf.update(bookidNew,titleNew,yearNew,typeNew,authorNew,editionNew,isbnNew)
+            updateNew = Shelf.query.filter_by(bookid = bookidNew).first()
+
+            updateNew.title = titleNew
+            updateNew.year = yearNew
+            updateNew.type = typeNew
+            updateNew.author = authorNew
+            updateNew.edition = editionNew
+            updateNew.isbn = isbnNew
+            db.session.commit()
+
+
+
             flash('Successfully Updated', 'success')
             return render_template("update.html", form = form)
         elif not form.validate():
@@ -142,28 +141,19 @@ def update():
 
 @app.route('/searchGet', methods = ['POST', 'GET'])
 def searchGet():
-    studs = models.Bookshelf.view()
+    studs = Shelf.query.all()
     search = request.form['search']
     if request.method == 'POST':
-        cursor = mysql.get_db().cursor()
         search1 = "%"+search+"%"
+        studs = Shelf.query.filter((Shelf.title.like(search1)) | (Shelf.year.like(search1)) |
+                                  (Shelf.type.like(search1)) | (Shelf.author.like(search1)) |
+                                  (Shelf.edition.like(search1)) | (Shelf.isbn.like(search1)) | (Shelf.rating.like(search1)))
 
-
-        sql = "SELECT * FROM shelf WHERE title LIKE '%s' or year LIKE '%s' or type LIKE '%s' or author LIKE '%s' or edition LIKE '%s' or isbn LIKE '%s'" % (search1,search1,search1,search1,search1,search1)
-        cursor.execute(sql)
-        studs = cursor.fetchall()
-
-        if studs is None:
-            flash('Book ot in record or Letter capitalization incorrect', 'error')
-            return render_template("personalshelf.html",studs = studs)
-
-        else:
-
-
-            return render_template("personalshelf.html",studs = studs)
-
+        return render_template("personalshelf.html",studs = studs)
 
     else:
-        return render_template("studentDatabase.html")
+        return render_template("personalshelf.html",studs = studs)
+
+
 
 

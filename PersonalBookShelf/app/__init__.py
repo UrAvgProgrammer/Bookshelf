@@ -1,17 +1,15 @@
 from flask import Flask
-from flaskext.mysql import MySQL
+from flask_sqlalchemy import SQLAlchemy
+import sqlalchemy
 
-mysql = MySQL()
+
 app = Flask(__name__)
-app.static_folder = 'static'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:sw33t890@localhost/books'
+engine = sqlalchemy.create_engine('mysql+pymysql://root:sw33t890@localhost')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+db = SQLAlchemy(app)
 
-
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = 'sw33t890'
-app.config['MYSQL_DATABASE_DB'] = 'books'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
-app.config['SECRET_KEY'] = 'somesecret'
-mysql.init_app(app)
-
-
+import models
 from app import controller
+
+

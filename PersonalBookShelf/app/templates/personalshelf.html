@@ -53,14 +53,14 @@
 				<input type="radio" name="rate" value=5 /> 5
 				<input type="submit" class="btn" formaction="/" value="Submit">
                 </td>
-            <td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[1]}}</font></td>
-            <td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[2]}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[3]}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[4]}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[5]}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[6]}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud[7]}}</font></td>
-			<td><input type="hidden" name="Store" value = {{stud[0]}}></td>
+            <td bgcolor="#f9ebf2"><font color="#b97a46">{{stud["title"]}}</font></td>
+            <td bgcolor="#f9ebf2"><font color="#b97a46">{{stud["year"]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud["type"]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud["author"]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud["edition"]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud["isbn"]}}</font></td>
+			<td bgcolor="#f9ebf2"><font color="#b97a46">{{stud["rating"]}}</font></td>
+			<td><input type="hidden" name="Store" value = {{stud["bookid"]}}></td>
 			<td><input type ="submit" class="btn btn-primary" value ="Delete"></td>
 			<td><input type ="submit" class="btn btn-primary" formaction = "/updateBook" value ="Update"></td>
 			</form>
