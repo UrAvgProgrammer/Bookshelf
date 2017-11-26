@@ -1,0 +1,31 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Log in
+{% endblock %}
+
+{% block styles %}
+        {{ super() }}
+        <link href="/static/design.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <h1>Welcome to Bookshelf</h1><br>
+<form method='post' action="/login">
+  <dl>
+    {{ form.csrf_token }}
+    {{ wtf.form_field(form.username) }}
+    {{ wtf.form_field(form.password) }}
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            {% for message in messages %}
+                <p style="color: #a94442">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+  </dl>
+  <p>{{ form.submit }}
+</form>
+Dont have an account? <a href="/signup">Sign up here.</a>
+{% endblock %}
