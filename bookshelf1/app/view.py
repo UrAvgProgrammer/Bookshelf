@@ -1,4 +1,4 @@
-from app import app, RegistrationForm, Users, db, LoginForm
+from app import app, RegistrationForm, Users, db, LoginForm, Search, Books
 from flask import render_template, redirect, url_for, flash
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from werkzeug.security import check_password_hash
@@ -13,9 +13,17 @@ def load_user(user_id):
     return Users.query.get(user_id)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html')
+    searchform = Search()
+    if current_user.is_authenticated is True:
+        return redirect(url_for('home'))
+    else:
+        if searchform.validate_on_submit():
+            pass
+        else:
+            top = Books.query.order_by(Books.rating.desc()).limit(6).all()
+            return render_template('index.html', searchform=searchform, top=top)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -63,4 +71,4 @@ def home():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('login'))
+    return redirect(url_for('index'))

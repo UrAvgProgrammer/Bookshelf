@@ -45,11 +45,10 @@ class RegistrationForm(FlaskForm):
 class LoginForm(FlaskForm):
     username = StringField('Username', [InputRequired(message='Username is invalid'), Length(min=3, max=25)])
     password = PasswordField('Password', [InputRequired(message='Password is invalid'), Length(min=6, max=80)])
-    submit = SubmitField('Log in')
 
     def validate_username(self, field):
         if Users.query.filter_by(username=field.data).first() is None:
-            raise ValidationError('Username is invalid')
+            raise ValidationError('Account not registered')
 
 
 class EditProfile(FlaskForm):
@@ -59,3 +58,7 @@ class EditProfile(FlaskForm):
                                                                Length(min=1, message='1 character only', max=1)])
     contact = StringField('Contact', validators=[InputRequired(), Length(11)])
     submit = SubmitField('Update')
+
+
+class Search(FlaskForm):
+    search = StringField(validators=[InputRequired()])

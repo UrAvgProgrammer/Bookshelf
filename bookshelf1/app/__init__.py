@@ -8,8 +8,8 @@ db = SQLAlchemy(app)
 app.config.from_pyfile('config.py')
 bootstrap = Bootstrap(app)
 
-from models import Users
-from forms import RegistrationForm, LoginForm
+from models import Users, Books
+from forms import RegistrationForm, LoginForm, Search
 from app import view
 
 db.create_all()

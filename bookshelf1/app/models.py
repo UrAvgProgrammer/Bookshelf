@@ -22,3 +22,26 @@ class Users(UserMixin, db.Model):
         self.contact_number = contact_number
         self.sex = sex
         self.birth_date = birth_date
+
+
+class Books(db.Model):
+    __tablename__ = 'books'
+    book_id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(60))
+    year = db.Column(db.String(20))
+    types = db.Column(db.String(20))
+    author = db.Column(db.String(60))
+    edition = db.Column(db.String(20))
+    isbn = db.Column(db.String(30))
+    rating = db.Column(db.Float(20))
+    raters = db.Column(db.Float(20))
+
+    def __init__(self, title='', year='', types='', author='', edition='', isbn='', rating='', raters=''):
+        self.title = title
+        self.year = year
+        self.type = types
+        self.author = author
+        self.edition = edition
+        self.isbn = isbn
+        self.rating = rating
+        self.raters = raters
