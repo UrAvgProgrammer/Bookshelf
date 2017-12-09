@@ -1,0 +1,86 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+    Bookshelf
+{% endblock %}
+
+{% block head %}
+
+<link rel="icon" href="{{ url_for('static', filename='background_photos/bookshelf-icon.ico') }}" type="image/gif" sizes="16x16">
+    {% block styles %}
+        {{ super() }}
+        <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+        <link rel= "stylesheet" type="text/css" href="{{ url_for('static', filename='css/ProfilePageStyleZ.css') }}"></l
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/carousel.css') }}">
+    {% endblock %}
+{% endblock %}
+
+{% block body %}
+    <h1>BOOKS</h1>
+    <hr>
+<div class="container">
+<a href="/home"><button type="button" class="homeButton">HOME</button></a>
+    <a href="/profile"><button type="button" class="profileButton">PROFILE</button></a>
+
+<div class="notifplace">
+        	<ul id="nav">
+
+		<li id="notification_li">
+		<a href="#" id="notificationLink" class="notificationButton">NOTIFICATIONS</a>
+
+
+			<div id="notificationContainer">
+			<div id="notificationTitle">Notifications</div>
+			<div id="notificationsBody" class="notifications"></div>
+
+			</div>
+
+		</li>
+
+		</ul>
+  <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+    <script  src="{{ url_for('static', filename='js/index.js') }}"></script>
+</div>
+
+
+
+
+<a href="/logout"><button type="button" class="logOutButton">LOG OUT</button></a>
+</div>
+
+
+<div class="container marketing">
+
+        <div class="row">
+      <!-- Three columns of text below the carousel -->
+{% for book in books.items %}
+        <div class="col-lg-4">
+          <img class="img-square" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" alt="Generic placeholder image" width="140" height="140">
+            <h2>{{ book.title }}</h2>
+          <p>{{ book.author_first_name }}</p>
+          <p>Edition: {{ book.edition }}</p>
+          <p><a class="btn btn-default" href="/home" role="button">View details &raquo;</a></p>
+        </div><!-- /.col-lg-4 -->
+    {% endfor %}
+    </div>
+    </div>
+q
+<div class="footer">{% for page in books.iter_pages() %}
+    {% if page %}
+     <a href="{{ url_for('home', page_num=page) }}">{{ page }}</a>
+    {% else %}
+        ....
+    {% endif %}
+{% endfor %}
+</div>
+
+    {% block scripts %}
+ <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
+    <script  src="{{ url_for('static', filename='js/index.js') }}"></script>
+        {% endblock %}
+
+{% endblock %}
