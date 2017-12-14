@@ -29,7 +29,7 @@
   <dl>
   <br>
 
- <form action = "{{ url_for('searchGet',user_id = current_user.id ,page_num=1) }}" method = "POST">
+  <form action = "{{ url_for('searchGet',user_id = current_user.id ,page_num=1) }}" method = "POST">
     <li><input type="text" name = "search"/></li><br>
     </form>
     <div class = "container">
@@ -41,7 +41,7 @@
 
         <table  class="table table-bordered">
 	<thead>
-    	<td>Title</td>
+		<td>Title</td>
     	<td>Year Published</td>
 		<td>Type</td>
 		<td>Edition</td>
@@ -49,7 +49,6 @@
 		<td>Quantity</td>
 		<td>Publisher</td>
 		<td>Author</td>
-
 
 	</thead>
 	{% for pag in pags.items %}
@@ -65,8 +64,7 @@
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.quantity}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.publisher.publisher_name}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{x[loop.index-1]}} {{y[loop.index-1]}} </font></td>
-			<td><input type="hidden" name="Pub" value = {{pag.containsbooks.publisher.publisher_name}}></td>
-			<td><input type="hidden" name="Store" value = {{pag.containsbooks.book_id}}></td>
+			<td><input type="hidden" name="Store" value = {{pag.bookid}}></td>
 			<td><input type ="submit" class="btn btn-primary" value ="Delete"></td>
 			<td><input type ="submit" class="btn btn-primary" formaction = "/updateBook" value ="Update"></td>
 			</form>
@@ -77,7 +75,7 @@
 
 			{% if page %}
 
-				<a href="{{ url_for('profile',user_id = data.id ,page_num=page) }}">{{ page }}</a>
+				<a href="{{ url_for('searchGetImp',user_id = data.id ,page_num=page,string1=string) }}">{{ page }}</a>
 			{% else %}
 				...
 			{% endif %}

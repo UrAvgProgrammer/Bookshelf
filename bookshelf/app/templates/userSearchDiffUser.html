@@ -19,17 +19,15 @@
     <br><h1>Profile </h1><br>
     <form method="POST" action="/profile/1">
   <dl>
-    {{ form.csrf_token }}
-    {{ wtf.form_field(form.first_name, **{'value':data.first_name, 'placeholder':data.first_name})}}
-    {{ wtf.form_field(form.last_name, **{'value':data.last_name, 'placeholder':data.last_name})}}
-    {{ wtf.form_field(form.contact, **{'value':data.contact_number, 'placeholder':data.contact_number})}}
-    {{ wtf.form_field(form.submit) }}<input class="btn btn-default" id="submit" name="reset" type="reset" value="Reset">
+    {{form.first_name}}<br><br>
+    {{form.last_name}}<br><br>
+    {{form.contact_number}}
     </form>
   </dl>
   <dl>
   <br>
 
- <form action = "{{ url_for('searchGet',user_id = current_user.id ,page_num=1) }}" method = "POST">
+  <form action = "{{ url_for('searchGet',user_id = form.id ,page_num=1) }}" method = "POST">
     <li><input type="text" name = "search"/></li><br>
     </form>
     <div class = "container">
@@ -41,6 +39,7 @@
 
         <table  class="table table-bordered">
 	<thead>
+		<td>Rate</td>
     	<td>Title</td>
     	<td>Year Published</td>
 		<td>Type</td>
@@ -49,14 +48,21 @@
 		<td>Quantity</td>
 		<td>Publisher</td>
 		<td>Author</td>
-
+		<td>Rating</td>
 
 	</thead>
 	{% for pag in pags.items %}
 		<tr>
-			<form action = "{{ url_for('deletefunc') }}" method = "POST">
+			<form action = "/borrow" method = "POST">
 
-
+				<td><input type="radio" name="rate" value=0 checked/> None
+				<input type="radio" name="rate" value=1 /> 1
+				<input type="radio" name="rate" value=2 /> 2
+  				<input type="radio" name="rate" value=3 /> 3
+				<input type="radio" name="rate" value=4 /> 4
+				<input type="radio" name="rate" value=5 /> 5
+				<input type="submit" class="btn" formaction="{{ url_for('rateBook') }}" value="Submit">
+                </td>
             <td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.title}}</font></td>
             <td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.year_published}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.types}}</font></td>
@@ -65,10 +71,9 @@
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.quantity}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.publisher.publisher_name}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{x[loop.index-1]}} {{y[loop.index-1]}} </font></td>
-			<td><input type="hidden" name="Pub" value = {{pag.containsbooks.publisher.publisher_name}}></td>
-			<td><input type="hidden" name="Store" value = {{pag.containsbooks.book_id}}></td>
-			<td><input type ="submit" class="btn btn-primary" value ="Delete"></td>
-			<td><input type ="submit" class="btn btn-primary" formaction = "/updateBook" value ="Update"></td>
+	        <td><input type="hidden" name="Store" value = {{pag.containsbooks.book_id}}></td>
+			<td><input type="hidden" name="userId" value = {{pag.shelf_id}}></td>
+			<td><input type ="submit" class="btn btn-primary" value ="Borrow"></td>
 			</form>
 		</tr>
 	{% endfor %}
@@ -77,7 +82,7 @@
 
 			{% if page %}
 
-				<a href="{{ url_for('profile',user_id = data.id ,page_num=page) }}">{{ page }}</a>
+				<a href="{{ url_for('searchGetImp',user_id = form.id ,page_num=page,string1=string) }}">{{ page }}</a>
 			{% else %}
 				...
 			{% endif %}

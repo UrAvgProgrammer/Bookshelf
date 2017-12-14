@@ -74,6 +74,8 @@ def home():
 @app.route('/profile/<int:user_id>/<int:page_num>', methods=['GET', 'POST'])
 @login_required
 def profile(user_id,page_num):
+    session['page'] = page_num
+    session['forpage'] = 1
     if user_id == current_user.id:
 
         pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == current_user.id).paginate(page_num,6)
@@ -95,37 +97,22 @@ def profile(user_id,page_num):
             update.contact_number = form.contact.data
             db.session.commit()
             return redirect(url_for('home'))
-        '''
-        elif request.method == 'POST':
-            ratingNew = int(request.form['rate'])
-            bookidNew = request.form['Store']
-            if ratingNew > 0:
-                userRate = Shelf.query.filter_by(bookid=bookidNew).first()
-                rate = userRate.rating
-                raters = userRate.raters
 
-                dividend = ratingNew+rate
-                ratersTot = raters+1
-
-                total = float(dividend/ratersTot)
-
-                userRate.rating = total
-                userRate.raters = ratersTot
-                db.session.commit()
-
-                pags = Shelf.query.filter_by(owner_id=current_user.id).paginate(page_num,10)
-            
-            else:
-                pass
-
-            form = EditProfile()
-            return render_template('profile.html', pags = pags, data=current_user,form = form)
-            '''
 
     elif user_id != current_user:
-        pags = Shelf.query.filter_by(owner_id=user_id).paginate(page_num,10)
-        form = Users.query.filter_by(id=user_id).first()
-        return render_template('diffuser.html', pags = pags, data=current_user,form = form)
+        pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == user_id).paginate(page_num,6)
+        form = User.query.filter(User.id == user_id).first()
+
+        x=[]
+        y=[]
+        for p in pags.items:
+            s = WrittenByAssociation.query.filter_by(book_id=p.book_id).first()
+            author = Author.query.filter_by(author_id=s.author_id).first()
+            x.append(author.author_first_name)
+            y.append(author.author_last_name)
+
+
+        return render_template('diffuser.html', pags = pags, data=current_user,form = form, x=x, y=y)
 
     return render_template('profile.html', data=current_user, form=form, pags = pags, x=x, y=y)
 
@@ -150,7 +137,7 @@ def adder():
             author = Author.query.filter((Author.author_first_name == authorFirstNew) & (Author.author_last_name == authorLastNew)).first()
 
 
-            if books is None:
+            if (books is None) or (publishers is None) or (author is None):
                 if publishers is None:
                     pubbook = Publisher(publisherNew)
                     db.session.add(pubbook)
@@ -179,7 +166,7 @@ def adder():
                 book = Books(titleNew,editionNew,yearNew,isbnNew,typeNew,pub_id.publisher_id)
                 db.session.add(book)
                 db.session.commit()
-                contain = ContainsAsscociation(current_user.id,book.book_id,1)
+                contain = ContainsAsscociation(current_user.id,book.book_id,1,'YES')
                 db.session.add(contain)
                 db.session.commit()
                 written = WrittenByAssociation(auth_id.author_id,book.book_id)
@@ -188,12 +175,23 @@ def adder():
 
                 flash('Book successfully added', 'success')
                 return redirect(url_for('profile',user_id = current_user.id,page_num=1))
+
             else:
 
-                bookquantity = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == current_user.id and ContainsAsscociation.book_id == books.book_id).first()
-                curQuant = bookquantity.quantity
-                bookquantity.quantity = int(curQuant+1)
-                db.session.commit()
+                bookquantity = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id == current_user.id) & (ContainsAsscociation.book_id == books.book_id)).first()
+
+                if bookquantity is None:
+                    contain = ContainsAsscociation(current_user.id,books.book_id,1,'YES')
+                    db.session.add(contain)
+                    db.session.commit()
+
+                else:
+                    curQuant = bookquantity.quantity
+                    bookquantity.quantity = int(curQuant+1)
+                    db.session.commit()
+
+
+
                 return redirect(url_for('profile',user_id = current_user.id,page_num=1))
 
 
@@ -217,11 +215,371 @@ def deletefunc():
         availDelete = int(avail.quantity)
         avail.quantity = availDelete-1
         db.session.commit()
+        if avail.quantity == 0:
+            avail.availability = 'No'
+            db.session.commit()
+
 
         return redirect(url_for('profile',user_id = current_user.id,page_num=1))
 
     else:
         return redirect(url_for('profile',user_id = current_user.id,page_num=1))
+
+@app.route('/updateBook', methods = ['POST', 'GET'])
+@login_required
+def updateGet():
+    updateStore = request.form['Store']
+    updatePub = request.form['Pub']
+
+    if request.method == 'POST':
+        session['bookidNew'] = updateStore
+        session['PubNew'] = updatePub
+        return redirect(url_for('update'))
+
+    else:
+        return redirect(url_for('profile', user_id = current_user.id , page_num=1))
+
+
+@app.route('/updateForm', methods = ['POST', 'GET'])
+@login_required
+def update():
+
+    form = Forms(request.form)
+    bookidNew = session['bookidNew']
+    bookidpub = session['PubNew']
+    if request.method == 'POST':
+        titleNew = form.titleNew.data
+        yearNew = form.yearNew.data
+        typeNew = form.typeNew.data
+        editionNew = form.editionNew.data
+        isbnNew = form.isbnNew.data
+        publisherNew = form.publisher_id.data
+        authorFirstNew = form.authorFirstNew.data
+        authorLastNew = form.authorLastNew.data
+
+        if form.validate():
+            updateNew = Books.query.filter_by(book_id = bookidNew).first()
+            updateAuthor = Author.query.filter((Author.author_id == bookidNew)).first()
+            updatePublishers = Publisher.query.filter((Publisher.publisher_name == bookidpub)).first()
+
+
+            updateNew.title = titleNew
+            updateNew.year_published = yearNew
+            updateNew.types = typeNew
+            updateAuthor.author_first_name = authorFirstNew
+            updateAuthor.author_last_name = authorLastNew
+            updatePublishers.publisher_name = publisherNew
+            updateNew.edition = editionNew
+            updateNew.isbn = isbnNew
+            db.session.commit()
+
+            return redirect(url_for('profile', user_id = current_user.id, page_num=1))
+
+        elif not form.validate():
+            flash('Please fill up each of the following', 'error')
+            return render_template("update.html", form = form)
+
+        else:
+            return render_template("update.html", form = form)
+
+
+    else:
+        return render_template("update.html", form=form)
+
+@app.route('/searchGet/<int:user_id>/<int:page_num>', methods = ['POST', 'GET'])
+@login_required
+def searchGet(user_id,page_num):
+    search = request.form['search']
+    search1 = "%"+search+"%"
+    pags = ContainsAsscociation.query.join(Books).filter((Books.title.like(search1)) | (Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (Books.isbn.like(search1))).paginate(page_num,6)
+    form = EditProfile()
+    foruserId = User.query.filter_by(id=user_id).first()
+    if user_id == current_user.id:
+        form = EditProfile()
+        foruserId = User.query.filter_by(id=user_id).first()
+        if request.method == 'POST':
+
+            return redirect(url_for('searchGetImp', user_id = current_user.id , page_num=1, string1=search))
+
+    elif user_id != current_user.id:
+        form = User.query.filter_by(id=user_id).first()
+        return redirect(url_for('searchGetImp', user_id = form.id , page_num=1, string1=search))
+
+    return render_template('userSearch.html', pags = pags, data=current_user,form = form, userId=foruserId)
+
+
+@app.route('/searchGet/<int:user_id>/<int:page_num>/<string:string1>', methods = ['POST', 'GET'])
+@login_required
+def searchGetImp(user_id,page_num,string1):
+    session['stringNew'] = string1
+    session['page'] = page_num
+    session['forpage'] = 0
+    if user_id == current_user.id:
+        foruserId = User.query.filter_by(id=user_id).first()
+        form = EditProfile()
+        search = string1
+        search1 = "%"+search+"%"
+        pags = ContainsAsscociation.query.join(Books).filter((ContainsAsscociation.shelf_id == current_user.id) & (Books.title.like(search1)) | (Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (Books.isbn.like(search1))).paginate(page_num,6)
+
+        x=[]
+        y=[]
+        for p in pags.items:
+            s = WrittenByAssociation.query.filter_by(book_id=p.book_id).first()
+            author = Author.query.filter_by(author_id=s.author_id).first()
+            x.append(author.author_first_name)
+            y.append(author.author_last_name)
+
+        return render_template('userSearch.html', pags = pags, data=current_user,form = form, string=string1, x=x, y=y)
+
+    elif user_id != current_user.id:
+        search = string1
+        search1 = "%"+search+"%"
+        form = User.query.filter_by(id=user_id).first()
+        pags = ContainsAsscociation.query.join(Books).filter((ContainsAsscociation.shelf_id == user_id) & (Books.title.like(search1)) | (Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (Books.isbn.like(search1))).paginate(page_num,6)
+
+        x=[]
+        y=[]
+        for p in pags.items:
+            s = WrittenByAssociation.query.filter_by(book_id=p.book_id).first()
+            author = Author.query.filter_by(author_id=s.author_id).first()
+            x.append(author.author_first_name)
+            y.append(author.author_last_name)
+
+        return render_template('userSearchDiffUser.html', pags = pags, data=current_user,form = form,string=string1, x=x, y=y)
+
+
+
+# ang notif na himo ug id sa book
+@app.route('/borrow', methods = ['POST', 'GET'])
+@login_required
+def borrow():
+    page = session['page']
+    otheruserId = request.form['userId']
+    bookid = request.form['Store']
+
+    pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
+    bookBorrow = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (BorrowsAssociation.bookid == bookid)).first()
+    quant =int(pags.quantity)
+    if bookBorrow is None:
+        borrowBook = BorrowsAssociation(current_user.id,otheruserId,1,bookid)
+        db.session.add(borrowBook)
+        db.session.commit()
+        flash("Book successfully borrowed", 'success')
+
+        if session['forpage'] == 1:
+            return redirect(url_for('profile',user_id = otheruserId,page_num=page))
+        else:
+            string = session['stringNew']
+            return redirect(url_for('searchGetImp',user_id = otheruserId,page_num=page,string1 = string))
+
+    elif bookBorrow is not None:
+        flash("Book already borrowed", 'error')
+        if session['forpage'] == 1:
+            return redirect(url_for('profile',user_id = otheruserId,page_num=page))
+        else:
+            string = session['stringNew']
+            return redirect(url_for('searchGetImp',user_id = otheruserId,page_num=page,string1 = string))
+
+    elif (quant == 0):
+        flash('Book not available', 'error')
+
+        if session['forpage'] == 1:
+            return redirect(url_for('profile',user_id = otheruserId,page_num=page))
+        else:
+            string = session['stringNew']
+            return redirect(url_for('searchGetImp',user_id = otheruserId,page_num=page,string1 = string))
+
+@app.route('/rateBook', methods = ['POST', 'GET'])
+@login_required
+def rateBook():
+    page = session['page']
+    bookid = request.form['Store']
+    rateNew = request.form['rate']
+    otheruserId = request.form['userId']
+
+    rateOld = BookRateAssociation.query.filter((BookRateAssociation.user_id == current_user.id) & (BookRateAssociation.book_id == bookid)).first()
+
+    if rateOld is not None:
+        rateOld.rating = rateNew
+        db.session.commit()
+
+        totOld = BookRateTotal.query.filter(BookRateTotal.bookRated == bookid).first()
+        if totOld is not None:
+            rateTot = BookRateAssociation.query.filter(BookRateAssociation.book_id == bookid).paginate(page,6)
+
+            x=0
+            count=0
+            for p in rateTot.items:
+                r = int(p.rating)
+                x= float(x+r)
+                count = float(count+1)
+
+            totRate = float(x/count)
+            totOld.totalRate = totRate
+            db.session.commit()
+        else:
+            rateTot = BookRateAssociation.query.filter(BookRateAssociation.book_id == bookid).paginate(page,6)
+
+            x=0
+            count=0
+            for p in rateTot.items:
+                r = int(p.rating)
+                x= float(x+r)
+                count = float(count+1)
+
+            totRate = float(x/count)
+
+            newRateTot = BookRateTotal(current_user.id,bookid,totRate)
+            db.session.add(newRateTot)
+            db.session.commit()
+
+
+        if session['forpage'] == 1:
+            return redirect(url_for('profile',user_id = otheruserId,page_num=page))
+        else:
+            string = session['stringNew']
+            return redirect(url_for('searchGetImp',user_id = otheruserId,page_num=page,string1 = string))
+
+
+
+    else:
+        newRater =  BookRateAssociation(current_user.id,bookid,rateNew)
+        db.session.add(newRater)
+        db.session.commit()
+
+        totOld = BookRateTotal.query.filter(BookRateTotal.bookRated == bookid).first()
+        if totOld is not None:
+            rateTot = BookRateAssociation.query.filter(BookRateAssociation.book_id == bookid).paginate(page,6)
+
+            x=0
+            count=0
+            for p in rateTot.items:
+                r = int(p.rating)
+                x= float(x+r)
+                count = float(count+1)
+
+            totRate = float(x/count)
+            totOld.totalRate = totRate
+            db.session.commit()
+        else:
+            rateTot = BookRateAssociation.query.filter(BookRateAssociation.book_id == bookid).paginate(page,6)
+
+            x=0
+            count=0
+            for p in rateTot.items:
+                r = int(p.rating)
+                x= float(x+r)
+                count = float(count+1)
+
+            totRate = float(x/count)
+
+            newRateTot = BookRateTotal(current_user.id,bookid,totRate)
+            db.session.add(newRateTot)
+            db.session.commit()
+
+        if session['forpage'] == 1:
+            return redirect(url_for('profile',user_id = otheruserId,page_num=page))
+        else:
+            string = session['stringNew']
+            return redirect(url_for('searchGetImp',user_id = otheruserId,page_num=page,string1 = string))
+
+
+@app.route('/rateUser', methods = ['POST', 'GET'])
+@login_required
+def rateUser():
+    page = session['page']
+    rateNew = request.form['rateUser']
+    otheruserId = request.form['userId']
+
+    rateOld = UserRateAssociation.query.filter((UserRateAssociation.user_idRatee == otheruserId) & (UserRateAssociation.user_idRater == current_user.id)).first()
+
+    if rateOld is not None:
+        rateOld.rating = rateNew
+        db.session.commit()
+
+        totOld = UserRateTotal.query.filter(UserRateTotal.userRatee == otheruserId).first()
+        if totOld is not None:
+            rateTot = UserRateAssociation.query.filter(UserRateAssociation.user_idRatee == otheruserId).paginate(page,6)
+
+            x=0
+            count=0
+            for p in rateTot.items:
+                r = int(p.rating)
+                x= float(x+r)
+                count = float(count+1)
+
+            totRate = float(x/count)
+            totOld.totalRate = totRate
+            db.session.commit()
+        else:
+            rateTot = UserRateAssociation.query.filter(UserRateAssociation.user_idRatee == otheruserId).paginate(page,6)
+
+            x=0
+            count=0
+            for p in rateTot.items:
+                r = int(p.rating)
+                x= float(x+r)
+                count = float(count+1)
+
+            totRate = float(x/count)
+
+            newRateTot = UserRateTotal(otheruserId,current_user.id,totRate)
+            db.session.add(newRateTot)
+            db.session.commit()
+
+
+        if session['forpage'] == 1:
+            return redirect(url_for('profile',user_id = otheruserId,page_num=page))
+        else:
+            string = session['stringNew']
+            return redirect(url_for('searchGetImp',user_id = otheruserId,page_num=page,string1 = string))
+
+
+
+    else:
+
+        newRater = UserRateAssociation(current_user.id,otheruserId,rateNew)
+        db.session.add(newRater)
+        db.session.commit()
+
+        totOld = UserRateTotal.query.filter(UserRateTotal.userRatee == otheruserId).first()
+        if totOld is not None:
+            rateTot = UserRateAssociation.query.filter(UserRateAssociation.user_idRatee == otheruserId).paginate(page,6)
+
+            x=0
+            count=0
+            for p in rateTot.items:
+                r = int(p.rating)
+                x= float(x+r)
+                count = float(count+1)
+
+            totRate = float(x/count)
+            totOld.totalRate = totRate
+            db.session.commit()
+        else:
+            rateTot = UserRateAssociation.query.filter(UserRateAssociation.user_idRatee == otheruserId).paginate(page,6)
+
+            x=0
+            count=0
+            for p in rateTot.items:
+                r = int(p.rating)
+                x= float(x+r)
+                count = float(count+1)
+
+            totRate = float(x/count)
+
+            newRateTot = UserRateTotal(otheruserId,current_user.id,totRate)
+            db.session.add(newRateTot)
+            db.session.commit()
+
+        if session['forpage'] == 1:
+            return redirect(url_for('profile',user_id = otheruserId,page_num=page))
+        else:
+            string = session['stringNew']
+            return redirect(url_for('searchGetImp',user_id = otheruserId,page_num=page,string1 = string))
+
+
+
 
 
 @app.route('/logout')

@@ -68,16 +68,17 @@ class Books(db.Model):
 class ContainsAsscociation(db.Model):
     __tablename__ = 'contains'
     quantity = db.Column(db.Integer)
-    availability = db.Column(db.Integer)
+    availability = db.Column(db.String(3))
     shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf.bookshelf_id'), primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('books.book_id'), primary_key=True)
     bookshelfcontain = db.relationship('Bookshelf', backref='containingbooks')
     containsbooks = db.relationship('Books', backref='booksBookshelf')
 
-    def __init__(self, shelf_id='', book_id='',quantity=''):
+    def __init__(self, shelf_id='', book_id='',quantity='',availability=''):
         self.shelf_id = shelf_id
         self.book_id = book_id
         self.quantity = quantity
+        self.availability = availability
 
 
 
@@ -143,13 +144,23 @@ class HasGenreAssociation(db.Model):
 
 class BorrowsAssociation(db.Model):
     __tablename__ = 'borrows'
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf.bookshelf_id'), primary_key=True)
+    borrowed = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf.bookshelf_id'))
     date = db.Column(db.DATE)
     status = db.Column(db.Integer)
-    notif = db.Column(db.Integer)
+    bookid = db.Column(db.Integer)
     user = db.relationship('User', backref='borrowBookshelfs')
     bookshelf = db.relationship('Bookshelf', backref='borrowUsers')
+
+    def __init__(self, user_id='',shelf_id='',status='' ,bookid=''):
+        self.user_id = user_id
+        self.shelf_id = shelf_id
+        self.status = status
+        self.bookid = bookid
+
+
+
 
 class BookRateAssociation(db.Model):
     __tablename__ = 'bookRate'
@@ -160,8 +171,24 @@ class BookRateAssociation(db.Model):
     user = db.relationship('User', backref='user_booksRate')
     books = db.relationship('Books', backref='bookRate')
 
+    def __init__(self, user_id='',book_id='',rating=''):
+        self.user_id = user_id
+        self.book_id = book_id
+        self.rating = rating
 
-    '''
+class BookRateTotal(db.Model):
+    __tablename__ = 'bookrateTotal'
+    numRate = db.Column(db.Integer, primary_key=True)
+    userRater = db.Column(db.Integer, db.ForeignKey('user.id'))
+    bookRated = db.Column(db.Integer, db.ForeignKey('books.book_id'))
+    totalRate = db.Column(db.Float)
+
+    def __init__(self, userRater='',bookRated='',totalRate=''):
+        self.userRater = userRater
+        self.bookRated = bookRated
+        self.totalRate = totalRate
+
+
 class UserRateAssociation(db.Model):
     __tablename__ = 'userRate'
     user_idRater = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key = True)
@@ -169,5 +196,19 @@ class UserRateAssociation(db.Model):
     rating = db.Column(db.Integer)
     comment = db.Column(db.TEXT)
 
+    def __init__(self, user_idRater='',user_idRatee='',rating=''):
+        self.user_idRater = user_idRater
+        self.user_idRatee = user_idRatee
+        self.rating = rating
 
-    '''
+class UserRateTotal(db.Model):
+    __tablename__ = 'userRateTotal'
+    numOfRate = db.Column(db.Integer, primary_key=True)
+    userRatee = db.Column(db.Integer, db.ForeignKey('user.id'))
+    userRater = db.Column(db.Integer, db.ForeignKey('user.id'))
+    totalRate = db.Column(db.Float)
+
+    def __init__(self, userRatee='',userRater='',totalRate=''):
+        self.userRatee = userRatee
+        self.userRater = userRater
+        self.totalRate = totalRate
