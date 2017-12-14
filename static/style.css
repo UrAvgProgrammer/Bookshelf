@@ -1,0 +1,11 @@
+body{
+    background-color: beige;
+
+}
+
+contain{
+    position: relative;
+    top: 10px;
+    size: 500px;
+    border-color: black;
+}

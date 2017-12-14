@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bookshelf</title>
+    <link href="static/style.css" rel = "stylesheet">
+</head>
+<body>
+<div class = "contain">
+<img src="{{url_for('send_img', filename = img)}}">
+</div>
+<form id = "upload-form" action="{{ url_for('upload') }}" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/jpg" multiple>
+    <input type="submit" value="Upload"> </form>
+</body>
+</html>
