@@ -65,7 +65,7 @@
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.quantity}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.publisher.publisher_name}}</font></td>
 			<td bgcolor="#f9ebf2"><font color="#b97a46">{{x[loop.index-1]}} {{y[loop.index-1]}} </font></td>
-			<td><input type="hidden" name="Pub" value = {{pag.containsbooks.publisher.publisher_name}}></td>
+			<td><input type="hidden" name="Pub" value = {{pag.containsbooks.publisher_id}}></td>
 			<td><input type="hidden" name="Store" value = {{pag.containsbooks.book_id}}></td>
 			<td><input type ="submit" class="btn btn-primary" value ="Delete"></td>
 			<td><input type ="submit" class="btn btn-primary" formaction = "/updateBook" value ="Update"></td>

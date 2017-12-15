@@ -76,6 +76,16 @@ def home():
 def profile(user_id,page_num):
     session['page'] = page_num
     session['forpage'] = 1
+    comments = UserComment.query.filter(UserComment.userCommentee == user_id).paginate(page_num,10)
+
+    a=[]
+    b=[]
+    for s in comments.items:
+        s = User.query.filter_by(id=s.userCommenter).first()
+        a.append(s.first_name)
+        b.append(s.last_name)
+
+
     if user_id == current_user.id:
 
         pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == current_user.id).paginate(page_num,6)
@@ -102,6 +112,8 @@ def profile(user_id,page_num):
     elif user_id != current_user:
         pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == user_id).paginate(page_num,6)
         form = User.query.filter(User.id == user_id).first()
+        formComment = CommentForms(request.form)
+
 
         x=[]
         y=[]
@@ -112,7 +124,8 @@ def profile(user_id,page_num):
             y.append(author.author_last_name)
 
 
-        return render_template('diffuser.html', pags = pags, data=current_user,form = form, x=x, y=y)
+
+        return render_template('diffuser.html', pags = pags, data=current_user,form = form, x=x, y=y, comments=comments, formComment=formComment,a=a,b=b)
 
     return render_template('profile.html', data=current_user, form=form, pags = pags, x=x, y=y)
 
@@ -259,9 +272,15 @@ def update():
 
         if form.validate():
             updateNew = Books.query.filter_by(book_id = bookidNew).first()
-            updateAuthor = Author.query.filter((Author.author_id == bookidNew)).first()
-            updatePublishers = Publisher.query.filter((Publisher.publisher_name == bookidpub)).first()
+            updateAuthor = Author.query.filter_by(author_id = bookidNew).first()
+            updatePublishers = Publisher.query.filter_by(publisher_id = bookidpub).first()
 
+            if updatePublishers is None:
+                addpub = Publisher(publisherNew)
+                db.session.add(addpub)
+                db.session.commit()
+
+            updatePublishers = Publisher.query.filter_by(publisher_id = bookidpub).first()
 
             updateNew.title = titleNew
             updateNew.year_published = yearNew
@@ -579,6 +598,37 @@ def rateUser():
             return redirect(url_for('searchGetImp',user_id = otheruserId,page_num=page,string1 = string))
 
 
+@app.route('/commentPage', methods = ['POST', 'GET'])
+@login_required
+def commentPage():
+    formComment = CommentForms(request.form)
+    page = session['page']
+    userIdNew = request.form['Store']
+
+    if request.method == 'POST':
+        com = formComment.commentNew.data
+
+        if formComment.validate():
+            commenter = UserComment(current_user.id,userIdNew,com)
+            db.session.add(commenter)
+            db.session.commit()
+
+            if session['forpage'] == 1:
+                return redirect(url_for('profile',user_id = userIdNew,page_num=page))
+            else:
+                string = session['stringNew']
+                return redirect(url_for('searchGetImp',user_id = userIdNew,page_num=page,string1 = string))
+
+        else:
+
+            if session['forpage'] == 1:
+                return redirect(url_for('profile',user_id = userIdNew,page_num=page))
+            else:
+                string = session['stringNew']
+                return redirect(url_for('searchGetImp',user_id = userIdNew,page_num=page,string1 = string))
+
+    else:
+        return redirect(url_for('profile',user_id = userIdNew,page_num=page))
 
 
 

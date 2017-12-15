@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, PasswordField, RadioField, SelectField, ValidationError, validators, Form
+from wtforms import StringField, SubmitField, PasswordField, RadioField, SelectField, ValidationError, validators, Form, TextAreaField
 from wtforms.validators import Length, InputRequired, EqualTo, DataRequired
 from models import User
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -75,3 +75,6 @@ class BookForms(Form):
     bookidNew = StringField('Book ID', [validators.Length(min=1,max=60)])
     submit = SubmitField("Submit")
 
+class CommentForms(Form):
+    commentNew = TextAreaField('Comment', [validators.Length(min=1,max=600)])
+    submit = SubmitField("Submit")

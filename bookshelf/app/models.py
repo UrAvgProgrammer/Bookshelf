@@ -1,5 +1,7 @@
 from app import db
 from flask_login import UserMixin
+from sqlalchemy import DateTime
+import datetime
 
 
 class User(UserMixin, db.Model):
@@ -34,9 +36,9 @@ class Bookshelf(db.Model):
     booksContain = db.relationship('ContainsAsscociation', backref=db.backref('bookshelf_contains'))
     borrow_users = db.relationship('BorrowsAssociation', backref='bookshelfBooks')
 
-    def __init__(self, bookshelf_id='',boookshef_owner=''):
+    def __init__(self, bookshelf_id='',bookshef_owner=''):
         self.bookshelf_id = bookshelf_id
-        self.bookshef_owner = boookshef_owner
+        self.bookshef_owner = bookshef_owner
 
 
 
@@ -167,7 +169,6 @@ class BookRateAssociation(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('books.book_id'), primary_key=True)
     rating = db.Column(db.Integer)
-    comment = db.Column(db.TEXT)
     user = db.relationship('User', backref='user_booksRate')
     books = db.relationship('Books', backref='bookRate')
 
@@ -194,7 +195,6 @@ class UserRateAssociation(db.Model):
     user_idRater = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key = True)
     user_idRatee = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key= True)
     rating = db.Column(db.Integer)
-    comment = db.Column(db.TEXT)
 
     def __init__(self, user_idRater='',user_idRatee='',rating=''):
         self.user_idRater = user_idRater
@@ -212,3 +212,17 @@ class UserRateTotal(db.Model):
         self.userRatee = userRatee
         self.userRater = userRater
         self.totalRate = totalRate
+
+class UserComment(db.Model):
+    __tablename__ = 'UserComment'
+    numOfComment = db.Column(db.Integer, primary_key=True)
+    userCommenter = db.Column(db.Integer, db.ForeignKey('user.id'))
+    userCommentee = db.Column(db.Integer, db.ForeignKey('user.id'))
+    date = db.Column(db.DateTime, default = datetime.datetime.today)
+    comment = db.Column(db.Text)
+
+    def __init__(self, userCommenter='',userCommentee='',comment=''):
+        self.userCommenter = userCommenter
+        self.userCommentee = userCommentee
+        self.comment = comment
+

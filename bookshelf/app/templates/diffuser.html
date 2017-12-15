@@ -23,10 +23,10 @@
     {{form.last_name}}<br><br>
     {{form.middle_initial}}<br><br>
     {{form.contact_number}}
-    </form>
 
 
   </dl>
+	</form>
 
 
 
@@ -36,7 +36,6 @@
   <form action = "{{ url_for('searchGet',user_id = form.id ,page_num=1) }}" method = "POST">
     <li><input type="text" name = "search"/></li><br>
     </form>
-    <div>
      <font color="Black"> <div class="container">
           {% include 'message.html' %}
 
@@ -56,7 +55,7 @@
 				<td><input type="radio" name="rateUser" value=5 /> 5</td>
                 <td><input type="submit" class="btn" formaction="{{ url_for('rateUser') }}" value="Submit"></td>
 			    <input type="hidden" name="userId" value = {{pag.shelf_id}}>
-                </>
+				</form>
                 {% endfor %}
                 <br><br>
 
@@ -116,12 +115,27 @@
 
 
 	</table>
+	</div>
+		<div class="large-8 columns">
+	<form action = "{{ url_for('commentPage') }}" method = "POST">
 
-    </form>
-    </div>
+  	{{formComment.commentNew(cols="35",rows="6")}}  {{formComment.commentNew.label}}<br>
+  	{{formComment.submit}}<br><br>
+	<input type="hidden" name="Store" value = {{form.id}}>
+	</form></div>
+	  	<table  class="table table-bordered">
+			<thead>
+			<td>Comments</td>
 
+			</thead>
+		{% for com in comments.items %}
+		<tr>
+			<td>By: {{a[loop.index-1]}} {{b[loop.index-1]}} -  {{com.comment}} ( {{ com.date }} )</td><br>
 
-    </dl>
+		</tr>
+		{% endfor %}
+		</table>
+  </dl>
 {% endblock %}
 
 
