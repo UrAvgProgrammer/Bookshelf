@@ -65,7 +65,7 @@ def signup():
     return render_template('registration.html', form=form)
 
 
-@app.route('/home')
+@app.route('/home', methods = ['POST', 'GET'])
 @login_required
 def home():
     return render_template('dashboard.html', name=current_user)
@@ -230,6 +230,7 @@ def deletefunc():
         db.session.commit()
         if avail.quantity == 0:
             avail.availability = 'No'
+            ContainsAsscociation.query.filter(ContainsAsscociation.book_id == deleteStore).delete()
             db.session.commit()
 
 
