@@ -1,4 +1,4 @@
-{% extends "bootstrap/base.html" %}
+{% extends "emtp.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
 
@@ -6,39 +6,31 @@
 Welcome to Bookshelf
 {% endblock %}
 
-{% block head %}
-<link rel="icon" href="static/bg-photos/bookshelf-icon.ico" type="image/gif" sizes="16x16">
-    {% block styles %}
-    {{ super() }}
-    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/index-design.css') }}" rel="stylesheet">
-    <link href="static/css/carousel.css" rel="stylesheet">
-{% endblock %}
-{% endblock %}
 
 {% block body %}
-<nav class="navbar navbar-default fixed-top">
+<nav class="navbar navbar-default navbar-fixed-top">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
       <a class="navbar-brand" href="/">Bookshelf</a>
     </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="/signup" class="btn btn-primary" role="button">Sign Up</a></li>
+            <li><a href="/signup"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="/login" class="btn btn-primary" role="button">Log In</a></li>
+            <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Log In</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="/about">About</a></li>
+            <li><a href="/about"><span class="glyphicon glyphicon-briefcase"></span> About</a></li>
         </ul>
-      <form method="post" action="/" class="navbar-form navbar-right">
+      <form method="post" action="{{ url_for('index') }}" class="navbar-form navbar-right">
         <div class="form-group">
+            <span class="glyphicon glyphicon-search"></span>
+                {{ form.csrf_token }}
+                {{ wtf.form_field(form.search,**{'placeholder':'Search a book ...'}) }}
         </div>
-        <button type="submit" class="btn btn-default">Submit</button>
+        <button type="submit" class="btn btn-default" value="submit">Submit</button>
       </form>
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
@@ -67,8 +59,8 @@ Welcome to Bookshelf
           <img class="second-slide" src="/static/bg-photos/carousel-image3.jpeg" alt="Second slide">
           <div class="container">
             <div class="carousel-caption">
-              <h1>We can do this!</h1>
-              <p><a class="btn btn-lg btn-primary" href="/home" role="button">Learn more</a></p>
+              <h1>Need a book? Browse here!</h1>
+              <p><a class="btn btn-lg btn-primary" href="/home" role="button">Browse books</a></p>
             </div>
           </div>
         </div>
@@ -76,8 +68,9 @@ Welcome to Bookshelf
           <img class="third-slide" src="/static/bg-photos/carousel-image1.jpeg" alt="Third slide">
           <div class="container">
             <div class="carousel-caption">
-              <h1>Insert tag line here!.</h1>
-               <p><a class="btn btn-lg btn-primary" href="/home" role="button">Browse books</a></p>
+              <h1>Already have an account?</h1>
+                <p>Log in and join the community.</p>
+               <p><a class="btn btn-lg btn-primary" href="/home" role="button">Log in</a></p>
             </div>
           </div>
         </div>
@@ -91,23 +84,22 @@ Welcome to Bookshelf
         <span class="sr-only">Next</span>
       </a>
     </div><!-- /.carousel -->
-        <div class="container marketing">
-    <h1>Top Rated</h1><hr>
-    <div class="row">
-        {% for bookss in top %}
+<div class="container marketing">
+<h1>Top Rated</h1><hr>
+        <div class="row">
+                {% for bookss in top %}
       <!-- Three columns of text below the carousel -->
-        <div class="col-lg-4">
-          <img class="img-square" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" alt="Generic placeholder image" width="140" height="140">
-          <h2>{{ bookss.title }}</h2>
-          <p>Author: {{ bookss.rating}}</p>
-          <p>Edition: {{ bookss.edition}}</p>
-          <p><a class="btn btn-default" href="/home" role="button">View details &raquo;</a></p>
-        </div><!-- /.col-lg-4 -->
-    {% endfor %}
-    </div>
-    </div>
-{% block scripts %}
-    {{ super() }}
-    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
-{% endblock %}
+                <div class="item">
+                    <div class="col-lg-4">
+                        <img class="img-square" src="/static/bg-photos/carousel-image3.jpeg" alt="Generic placeholder image" width="140" height="140">
+                        <h2>{{ bookss.title }}</h2>
+                        <p>Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</p>
+                        <p>Edition: {{ bookss.edition}}</p>
+                        <p>{{ comm[loop.index-1] }}</p>
+                        <p><a class="btn btn-default" href="/home" role="button">View details &raquo;</a></p>
+                    </div>
+                </div><!-- /.col-lg-4 -->
+                {% endfor %}
+            </div>
+        </div>
 {% endblock %}

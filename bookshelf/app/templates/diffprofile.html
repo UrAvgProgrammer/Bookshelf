@@ -43,25 +43,27 @@
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <div class="col-xs-6 col-sm-3 placeholder">
-                <img class ="img-circle" src="{{ url_for('static', filename='') }}" width="200" height="200" alt="Profile Picture">
-            </div>
+                <img class ="img-circle" src="{{ user.profpic }}" width="200" height="200" alt="Generic placeholder thumbnail">
+                </div>
           </ul>
           <ul class="nav nav-sidebar">
-              <li class="active"><a href="/profile/{{ current_user.id }}">Profile<span class="sr-only">(current)</span></a></li>
-            <li><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf</a></li>
+              <li class="active"><a href="/profile/{{ user.id }}">Profile<span class="sr-only">(current)</span></a></li>
+            <li><a href="/profile/bookshelf/{{ user.id }}/1">Bookshelf</a></li>
             <li><a href="/profile/rate_and_comment">Comments and rating</a></li>
           </ul>
         </div>
           <!-- Contetnt -->
           <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">My profile</h1>
-              <div class="square">
-                  <h3>First name: {{ current_user.first_name }}</h3>
-                  <h3>Last name: {{ current_user.last_name }}</h3>
-                      <h4>Sex: {{ current_user.sex }}</h4>
-                      <h4>Contact Number: {{ current_user.contact_number }}</h4>
-                <h4>Birthdate: {{ current_user.birth_date }}</h4>
-          </div>
+          <h1 class="page-header">Welcome, {{ current_user.first_name}}!</h1>
+            {% if not user %}
+              <div class="row placeholders">
+                Nothing to display here!
+             </div>
+            {% else %}
+              <div class="row placeholders">
+                {{ user.first_name }}
+             </div>
+            {% endif %}
           </div>
         </div>
 </div><!-- end of side bar -->

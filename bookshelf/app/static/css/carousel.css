@@ -3,7 +3,7 @@
 /* Padding below the footer and lighter body text */
 
 body {
-  padding-bottom: 40px;
+  padding-bottom:10px;
   color: #5a5a5a;
 }
 
@@ -87,6 +87,10 @@ body {
   margin-left: 10px;
 }
 
+.nav:hover .navbar-nav:hover .navbar-right:hover{
+  background-color: whitesmoke;
+}
+
 
 /* Featurettes
 ------------------------- */
@@ -142,3 +146,4 @@ body {
     margin-top: 0;
   }
 }
+

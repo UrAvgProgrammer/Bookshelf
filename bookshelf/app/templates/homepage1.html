@@ -39,24 +39,23 @@
 
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-1 main">
     <br>
-    {% if not book.items %}
-         <h1 class="page-header">Books</h1>
-         <div class="row placeholders">
-                  <div class="row">
-                      <h1>No Book to Display!</h1>
-                  </div>
-         </div>
-    {% else %}
           <h1 class="page-header">Books</h1>
+    {% if not book.items %}
+        <div class="row placeholders">
+                  <div class="row">
+                      <h1>Result: No book found!</h1>
+                  </div>
+        </div>
+    {% else %}
          <div class="row placeholders">
                   <div class="row">
               {% for bookss in book.items %}
                <div class="col-xs-6 col-sm-3">
                 <div class="square">
                     <img class ="img-square" src="/static/image/book.png" width="150" height="150" alt="Generic placeholder thumbnail">
-                    <a href="{{ url_for('indibook', book_id=bookss.books.book_id, page_num=1) }}" ><h3>{{ bookss.books.title }}</h3></a>
-                    <span class="text-muted">Author: {{ bookss.author.author_first_name }} {{ bookss.author.author_last_name }}</span><br>
-                    <span class="text-muted">Edition: {{ bookss.books.edition }}</span><br>
+                    <a href="{{ url_for('indibook', book_id=bookss.containsbooks.book_id, page_num=1) }}" ><h3>{{ bookss.containsbooks.title }}</h3></a>
+                    <span class="text-muted">Edition: {{ bookss.containsbooks.edition }}</span><br>
+                    <span class="text-muted">Author: {{y[loop.index-1]}}</span><br>
                     <span class="text-muted">Quantity: {{x[loop.index-1]}}</span>
                 </div>
                 </div>
