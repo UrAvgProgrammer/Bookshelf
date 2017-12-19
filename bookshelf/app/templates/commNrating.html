@@ -43,20 +43,20 @@
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <div class="col-xs-6 col-sm-3 placeholder">
-                <img class ="img-square" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" alt="Generic placeholder thumbnail">
+                <img class ="img-square"  src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Generic placeholder thumbnail">
                 </div>
           </ul>
           <ul class="nav nav-sidebar">
             <li><a href="/profile/{{ current_user.id }}">Profile</a></li>
             <li><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf</a></li>
-            <li class="active"><a href="/profile/rate_and_comment">Comments and Rating<span class="sr-only">(current)</span></a></li>
+            <li class="active"><a href="/profile/rate_and_comment/{{ current_user.id }}">Comments and Rating<span class="sr-only">(current)</span></a></li>
           </ul>
         </div>
           <!-- Contetnt -->
           <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header">Comments and Rating</h1>
           <div class="row placeholders">
-              rate and comment this is
+              Nothing to show here!
           </div>
           </div>
         </div>

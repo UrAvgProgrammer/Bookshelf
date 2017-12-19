@@ -43,7 +43,7 @@
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <div class="col-xs-6 col-sm-3 placeholder">
-                <img class ="img-square" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" alt="Generic placeholder thumbnail">
+                <img class ="img-square"  src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Generic placeholder thumbnail">
                 </div>
           </ul>
           <ul class="nav nav-sidebar">
@@ -76,26 +76,28 @@
           <div class="row placeholders">
                   <div class="row">
                         {% for book in books.items %}
-                            <div class="col-xs-6 col-sm-3">
-                                <div class="square">
+                            {% if book.quantity != 0 %}
+                                <div class="col-lg-6 bg-info" style="padding-top: 2%; padding-bottom: 2%">
                                 <img class ="img-square" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="150" height="150" alt="Generic placeholder thumbnail">
                                 <a href="/book/{{ book.book_id }}"><h3>{{ book.containsbooks.title }}</h3></a>
                                 <span class="text-muted">Edition: {{ book.containsbooks.edition }}</span><br>
                                 <span class="text-muted">Type: {{ book.containsbooks.types }}</span><br>
                                 <span class="text-muted">Year Published: {{ book.containsbooks.year_published }}</span><br>
                                 <span class="text-muted">Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</span><br>
-                                <a href="#" class="btn btn-info" role="button">Delete</a>
-                                <form action = "#" method = "POST">
-				<input type="radio" name="rateUser" value=1 /> 1
-				<input type="radio" name="rateUser" value=2 /> 2
-  				<input type="radio" name="rateUser" value=3 /> 3
-				<input type="radio" name="rateUser" value=4 /> 4
-				<input type="radio" name="rateUser" value=5 /> 5
-                <input type="hidden" name="userId" value = {{book.containsbooks.shelf_id}}><br>
-                <input type="submit" class="btn" formaction="#" value="Submit">
-                </form>
+                                <h3>Rate</h3>
+                                    <form action ="/rateBook/{{ book.book_id }}" method = "POST">
+                                        <input type="radio" name="rateUser" value=1 /> 1
+                                        <input type="radio" name="rateUser" value=2 /> 2
+                                        <input type="radio" name="rateUser" value=3 /> 3
+                                        <input type="radio" name="rateUser" value=4 /> 4
+                                        <input type="radio" name="rateUser" value=5 /> 5<br>
+                                        <textarea rows="4" cols="50" name="comment" id="comment"></textarea><br>
+                                        <input type="submit" class="btn btn-default" value="Rate and Comment">
+                                    </form>
+                                    <a href="/borrow/{{user_id}}/{{ book.containsbooks.book_id }}" class="btn btn-info" role="button">Borrow</a>
                                 </div>
                             </div>
+                            {% endif %}
                         {% endfor %}
                     </div>
           <div class="footer">

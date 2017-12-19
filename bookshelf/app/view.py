@@ -1,5 +1,5 @@
 from app import app, User, Search, LoginForm, RegistrationForm, db, Author, Bookshelf, BookRateAssociation, Books, \
-    WrittenByAssociation, ContainsAsscociation, Addbook, Publisher, BookRateTotal
+    WrittenByAssociation, ContainsAsscociation, Addbook, Publisher, BookRateTotal, BorrowsAssociation, EditProfile
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from werkzeug.security import check_password_hash
@@ -14,6 +14,61 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
+@app.route('/book/<int:book_id>/<int:page_num>', methods=['GET', 'POST'])
+def indexind(book_id, page_num):
+    form = Search()
+    book = ContainsAsscociation.query.filter_by(book_id=book_id).paginate(page_num, 12)
+    rate = BookRateTotal.query.filter_by(bookRated=book_id).first()
+    yx = []
+    comment = BookRateAssociation.query.filter_by(book_id=book_id).all()
+    for id in comment:
+        s = User.query.filter_by(id=id.user_id).first()
+        yx.append(s.first_name + ' ' + s.last_name)
+
+    x = []
+    y = []
+    z = []
+    t = ContainsAsscociation.query.filter_by(book_id=book_id).first()
+    title = t.containsbooks.title
+    for bok in book.items:
+        s = User.query.filter_by(id=bok.shelf_id).first()
+        x.append(s.first_name)
+        y.append(s.last_name)
+        z.append(s.id)
+    return render_template('indexind.html', yx=yx, book=book, title=title, comment=comment, rate=rate, form=form,
+                           book_id=book_id, x=x, y=y, z=z)
+
+
+@app.route('/result/<string:item>/<int:page_num>', methods=['GET', 'POST'])
+def tosearch(page_num, item):
+    form = Search()
+    search1 = item
+    if form.validate_on_submit():
+        book = ContainsAsscociation.query.join(Books).filter(((Books.title.like(search1)) | (
+            Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (
+                                                              Books.isbn.like(search1)))).paginate(page_num, 12)
+        x = []
+        y = []
+        for bok in book.items:
+            s = ContainsAsscociation.query.filter_by(book_id=bok.book_id).first()
+            d = WrittenByAssociation.query.filter_by(book_id=s.book_id).first()
+            x.append(s.quantity)
+            y.append(d.author.author_first_name + ' ' + d.author.author_last_name)
+        return render_template('indexres.html', book=book, page_num=page_num, item=item, form=form, x=x, y=y)
+    book = ContainsAsscociation.query.join(Books).filter(((Books.title.like(search1)) | (
+        Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (
+                                                              Books.isbn.like(search1)))).paginate(page_num, 12)
+    x = []
+    y = []
+
+    for bok in book.items:
+        s = ContainsAsscociation.query.filter_by(book_id=bok.book_id).first()
+        d = WrittenByAssociation.query.filter_by(book_id=s.book_id).first()
+        x.append(s.quantity)
+        y.append(d.author.author_first_name + ' ' + d.author.author_last_name)
+    return render_template('indexres.html', book=book, page_num=page_num, item=item, form=form, x=x, y=y)
+
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     form = Search()
@@ -21,21 +76,26 @@ def index():
         return redirect(url_for('home'))
     else:
         if form.validate_on_submit():
-            result = Books.query.filter_by('%'+form.data+'%')
-            return redirect(url_for('login'))
+            search = '%'+form.search.data+'%'
+            return redirect(url_for('tosearch', item=search, page_num=1))
         else:
-            top = Books.query.join(BookRateAssociation).all()
+            top = BookRateTotal.query.join(Books).order_by(BookRateTotal.totalRate.desc()).limit(3).all()
             x = []
             y = []
+            books = []
             comm = []
+            ids = []
             for bok in top:
-                s = WrittenByAssociation.query.filter_by(book_id=bok.book_id).first()
+                s = WrittenByAssociation.query.filter_by(book_id=bok.bookRated).first()
+                ss = Books.query.filter_by(book_id=bok.bookRated).first()
                 author = Author.query.filter_by(author_id=s.author_id).first()
-                comments = BookRateAssociation.query.filter_by(book_id=bok.book_id).first()
+                comments = BookRateAssociation.query.filter_by(book_id=bok.bookRated).first()
                 comm.append(comments.comment)
+                books.append(ss.title)
+                ids.append(ss.book_id)
                 x.append(author.author_first_name)
                 y.append(author.author_last_name)
-            return render_template('index.html', top=top, form=form, x=x, y=y, comm=comm)
+            return render_template('index.html', ids=ids, top=top, books=books, form=form, x=x, y=y, comm=comm)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -100,7 +160,7 @@ def home(page_num):
         s = ContainsAsscociation.query.filter_by(book_id=bok.books.book_id).first()
         x.append(s.quantity)
         y.append(s.availability)
-    return render_template('homepage.html', page_num=page_num, book=book, current_user=current_user, form=form, x=x, y=y    )
+    return render_template('homepage.html', page_num=page_num, book=book, current_user=current_user, form=form, x=x, y=y)
 
 
 @app.route('/profile/<int:user_id>/', methods=['GET', 'POST'])
@@ -114,12 +174,37 @@ def profile(user_id):
         return render_template('diffprofile.html', form=form, user=user)
 
 
+@app.route('/profile/edit/<int:user_id>/', methods=['GET', 'POST'])
+@login_required
+def editprof(user_id):
+    form = Search()
+    form1 = EditProfile()
+    info = User.query.filter_by(id=user_id).first()
+    if form1.validate_on_submit():
+        info.first_name = form1.first_name.data
+        info.last_name = form1.last_name.data
+        info.sex = form1.sex.data
+        info.contact_number = form1.contact.data
+        info.birth_date = form1.birth_date.data
+        db.session.commit()
+        return redirect(url_for('profile', user_id=current_user.id))
+    return render_template('editprofile.html', form1=form1, form=form, info=info, user_id=user_id)
+
+
 @app.route('/home/book/<int:book_id>/<int:page_num>', methods=['GET', 'POST'])
 @login_required
 def indibook(book_id, page_num):
     form = Search()
     book = ContainsAsscociation.query.filter_by(book_id=book_id).paginate(page_num, 12)
     rate = BookRateTotal.query.filter_by(bookRated=book_id).first()
+    yx = []
+    comment = BookRateAssociation.query.filter_by(book_id=book_id).all()
+    for id in comment:
+        s = User.query.filter_by(id=id.user_id).first()
+        yx.append(s.first_name + ' ' + s.last_name)
+
+    t=ContainsAsscociation.query.filter_by(book_id=book_id).first()
+    title = t.containsbooks.title
     x = []
     y = []
     z = []
@@ -128,7 +213,8 @@ def indibook(book_id, page_num):
         x.append(s.first_name)
         y.append(s.last_name)
         z.append(s.id)
-    return render_template('individualbook.html', book=book, rate=rate, form=form, book_id=book_id, x=x, y=y, z=z)
+
+    return render_template('individualbook.html', yx=yx, title=title, book=book, comment=comment, rate=rate, form=form, book_id=book_id, x=x, y=y, z=z)
 
 
 @app.route('/profile/bookshelf/<int:user_id>/<int:page_num>', methods=['GET', 'POST'])
@@ -200,11 +286,14 @@ def bookshelfsearch(user_id, page_num, searchid):
                                books=books, x=x, y=y, booksearch=booksearch, user_id=user_id)
 
 
-@app.route('/profile/rate_and_comment', methods=['GET', 'POST'])
+@app.route('/profile/rate_and_comment/<int:user_id>', methods=['GET', 'POST'])
 @login_required
-def ratencomm():
+def ratencomm(user_id):
     form = Search()
-    return render_template('commNrating.html', current_user=current_user, form=form)
+    if user_id == current_user.id:
+        return render_template('commNrating.html', form=form)
+    else:
+        return render_template('diffcommNrating.html', form=form)
 
 
 @app.route('/notification', methods=['GET', 'POST'])
@@ -298,9 +387,11 @@ def addbook():
 @login_required
 def ratebook(book_id):
     rate = request.form['rateUser']
+    comment = request.form['comment']
     rateOld = BookRateAssociation.query.filter((BookRateAssociation.user_id == current_user.id) & (BookRateAssociation.book_id == book_id)).first()
     if rateOld is not None:
         rateOld.rating = rate
+        rateOld.comment = comment
         db.session.commit()
 
         totOld = BookRateTotal.query.filter(BookRateTotal.bookRated == book_id).first()
@@ -333,7 +424,7 @@ def ratebook(book_id):
             db.session.commit()
         return redirect(url_for('indibook', book_id=book_id, page_num=1))
     else:
-        newRater = BookRateAssociation(current_user.id, book_id, rate)
+        newRater = BookRateAssociation(current_user.id, book_id, rate, comment)
         db.session.add(newRater)
         db.session.commit()
 
@@ -367,6 +458,31 @@ def ratebook(book_id):
             db.session.add(newRateTot)
             db.session.commit()
     return redirect(url_for('indibook', book_id=book_id, page_num=1))
+
+
+@app.route('/borrow/<int:owner_id>/<int:book_id>')
+@login_required
+def borrow(owner_id, book_id):
+    otheruserId = owner_id
+    bookid = book_id
+    pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
+    bookBorrow = BorrowsAssociation.query.filter(
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (
+            BorrowsAssociation.bookid == bookid)).first()
+    quant = int(pags.quantity)
+    if bookBorrow is None:
+        borrowBook = BorrowsAssociation(current_user.id, otheruserId, 1, bookid)
+        db.session.add(borrowBook)
+        db.session.commit()
+        flash("Book successfully borrowed", 'success')
+        return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
+    elif bookBorrow is not None:
+        flash("Book already borrowed", 'error')
+        return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
+    elif quant == 0:
+        flash('Book not available', 'error')
+        return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
+
 
 @app.route('/logout')
 @login_required

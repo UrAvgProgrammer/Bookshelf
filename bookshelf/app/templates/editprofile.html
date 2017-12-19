@@ -29,6 +29,8 @@
           <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
             <div class="form-group">
             <span class="glyphicon glyphicon-search"></span>
+                {{ form.csrf_token }}
+                {{ wtf.form_field(form.search, **{'placeholder':'Search a book ...'}) }}
             </div>
         <button type="submit" class="btn btn-default" value="submit">Submit</button>
       </form>
@@ -41,60 +43,31 @@
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <div class="col-xs-6 col-sm-3 placeholder">
-                <img class ="img-square"  src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Generic placeholder thumbnail">
-                </div>
+                <img class ="img-circle" src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Profile Picture">
+            </div>
           </ul>
           <ul class="nav nav-sidebar">
-            <li><a href="/profile/{{ current_user.id }}">Profile</a></li>
-            <li class="active"><a href="#">Bookshelf<span class="sr-only">(current)</span></a></li>
+              <li class="active"><a href="/profile/{{ current_user.id }}">Profile<span class="sr-only">(current)</span></a></li>
+            <li><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf</a></li>
             <li><a href="/profile/rate_and_comment">Comments and rating</a></li>
           </ul>
         </div>
           <!-- Contetnt -->
           <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Add Book</h1>
-          <div class="row placeholders">
-
-          </div>
-              <div class="row">
-                  <form method="post" action="/profile/bookshelf/add">
-                      {{ form.csrf_token }}
-                      <div class="col-xs-6 col-md-6">
-                      {{ wtf.form_field(form.title) }}
-                      </div>
-                      <div class="col-xs-6 col-md-6">
-                      {{ wtf.form_field(form.edition) }}
-                      </div>
-                      <div class="col-xs-6 col-md-6">
-                      {{ wtf.form_field(form.year) }}
-                      </div>
-                      <div class="col-xs-6 col-md-6">
-                          <div class="col-md-6">
-                              {{ wtf.form_field(form.author_firstname) }}
-                          </div>
-                          <div class="col-md-6">
-                              {{ wtf.form_field(form.author_lastname) }}
-                          </div>
-                      </div>
-                      <div class="col-xs-6 col-md-6">
-                      {{ wtf.form_field(form.publisher) }}
-                      </div>
-                      <div class="col-xs-6 col-md-6">
-                      {{ wtf.form_field(form.isbn) }}
-                      </div>
-                      <div class="col-xs-6 col-md-6">
-                      {{ wtf.form_field(form.type) }}
-                      </div>
-                      <div class="col-xs-6 col-md-6">
-                      {{ wtf.form_field(form.categories) }}
-                      </div>
-                      <div class="col-md-3">
-                          <button  class="btn btn-lg btn-primary btn-block " type="submit">Add book</button>
-                      </div>
-                  </form>
+          <h1 class="page-header">My profile</h1>
+              <div class="col-lg-6 bg-success" style="text-align: center; padding: 2%">
+                 <form action="{{ url_for('editprof', user_id=user_id) }}" method='post'>
+                     {{ form1.csrf_token }}
+                     {{ wtf.form_field(form1.first_name, **{'value':info.first_name}) }}
+                     {{ wtf.form_field(form1.last_name, **{'value':info.last_name}) }}
+                     {{ wtf.form_field(form1.sex, **{'value':info.sex}) }}
+                     {{ wtf.form_field(form1.contact, **{'value':info.contact_number}) }}
+                     {{ wtf.form_field(form1.birth_date, **{'value':info.birth_date}) }}
+                     <button class="btn btn-lg btn-primary btn-block" type="submit">Submit</button>
+                     <button class="btn btn-lg btn-default btn-block" type="reset">Reset</button>
+                 </form>
               </div>
           </div>
-
         </div>
 </div><!-- end of side bar -->
 {% endblock %}

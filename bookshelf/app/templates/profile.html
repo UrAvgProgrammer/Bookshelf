@@ -43,25 +43,26 @@
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <div class="col-xs-6 col-sm-3 placeholder">
-                <img class ="img-circle" src="{{ url_for('static', filename='') }}" width="200" height="200" alt="Profile Picture">
+                <img class ="img-circle" src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Profile Picture">
             </div>
           </ul>
           <ul class="nav nav-sidebar">
               <li class="active"><a href="/profile/{{ current_user.id }}">Profile<span class="sr-only">(current)</span></a></li>
             <li><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf</a></li>
-            <li><a href="/profile/rate_and_comment">Comments and rating</a></li>
+            <li><a href="/profile/rate_and_comment/{{ current_user.id }}">Comments and rating</a></li>
           </ul>
         </div>
           <!-- Contetnt -->
           <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header">My profile</h1>
-              <div class="square">
+              <div class="col-lg-6 bg-success" style="text-align: center; padding: 2%">
                   <h3>First name: {{ current_user.first_name }}</h3>
                   <h3>Last name: {{ current_user.last_name }}</h3>
-                      <h4>Sex: {{ current_user.sex }}</h4>
-                      <h4>Contact Number: {{ current_user.contact_number }}</h4>
-                <h4>Birthdate: {{ current_user.birth_date }}</h4>
-          </div>
+                  <h3>Sex: {{ current_user.sex }}</h3>
+                  <h3>Contact Number: {{ current_user.contact_number }}</h3>
+                  <h3>Birthdate: {{ current_user.birth_date }}</h3>
+                  <a href="/profile/edit/{{ current_user.id }}" class="btn btn-primary">Update</a>
+              </div>
           </div>
         </div>
 </div><!-- end of side bar -->

@@ -43,7 +43,7 @@
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
             <div class="col-xs-6 col-sm-3 placeholder">
-                <img class ="img-circle" src="{{ user.profpic }}" width="200" height="200" alt="Generic placeholder thumbnail">
+                <img class ="img-circle"  src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Generic placeholder thumbnail">
                 </div>
           </ul>
           <ul class="nav nav-sidebar">
@@ -61,7 +61,12 @@
              </div>
             {% else %}
               <div class="row placeholders">
-                {{ user.first_name }}
+              <div class="col-lg-6 bg-success" style="text-align: center; padding: 2%">
+                  <h3>First name: {{ user.first_name }}</h3>
+                  <h3>Last name: {{ user.last_name }}</h3>
+                  <h3>Contact Nummber: {{ user.contact_number }}</h3>
+                  <h3>Sex: {{ user.sex }}</h3>
+                  <h3>Birthdate: {{ user.birth_date }}</h3>
              </div>
             {% endif %}
           </div>

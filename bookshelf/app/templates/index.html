@@ -22,7 +22,7 @@ Welcome to Bookshelf
             <li><a href="/login"><span class="glyphicon glyphicon-log-in"></span> Log In</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-            <li><a href="/about"><span class="glyphicon glyphicon-briefcase"></span> About</a></li>
+            <li><a href="/about"><span class="glyphicon glyphicon-briefcase"></span> About Us</a></li>
         </ul>
       <form method="post" action="{{ url_for('index') }}" class="navbar-form navbar-right">
         <div class="form-group">
@@ -91,12 +91,10 @@ Welcome to Bookshelf
       <!-- Three columns of text below the carousel -->
                 <div class="item">
                     <div class="col-lg-4">
-                        <img class="img-square" src="/static/bg-photos/carousel-image3.jpeg" alt="Generic placeholder image" width="140" height="140">
-                        <h2>{{ bookss.title }}</h2>
+                        <img class="img-square" src="/static/image/book.png" alt="Generic placeholder image" width="140" height="140">
+                        <h2>{{books[loop.index-1]}}</h2>
                         <p>Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</p>
-                        <p>Edition: {{ bookss.edition}}</p>
-                        <p>{{ comm[loop.index-1] }}</p>
-                        <p><a class="btn btn-default" href="/home" role="button">View details &raquo;</a></p>
+                        <p><a class="btn btn-default" href="/book/{{ids[loop.index-1]}}/1" role="button">View details &raquo;</a></p>
                     </div>
                 </div><!-- /.col-lg-4 -->
                 {% endfor %}

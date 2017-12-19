@@ -1,4 +1,4 @@
-from app import db
+from app import db, datetime
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash
 
@@ -145,7 +145,7 @@ class BorrowsAssociation(db.Model):
     borrowed = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf.bookshelf_id'))
-    date = db.Column(db.DATE)
+    date = db.Column(db.DateTime, default=datetime.datetime.today)
     status = db.Column(db.Integer)
     bookid = db.Column(db.Integer)
     user = db.relationship('User', backref='borrowBookshelfs')
@@ -167,10 +167,11 @@ class BookRateAssociation(db.Model):
     user = db.relationship('User', backref='user_booksRate')
     books = db.relationship('Books', backref='bookRate')
 
-    def __init__(self, user_id='',book_id='',rating=''):
+    def __init__(self, user_id='',book_id='',rating='',comment=''):
         self.user_id = user_id
         self.book_id = book_id
         self.rating = rating
+        self.comment = comment
 
 
 class BookRateTotal(db.Model):
@@ -193,10 +194,11 @@ class UserRateAssociation(db.Model):
     rating = db.Column(db.Integer)
     comment = db.Column(db.TEXT)
 
-    def __init__(self, user_idRater='', user_idRatee='', rating=''):
+    def __init__(self, user_idRater='', user_idRatee='', rating='', comment=''):
         self.user_idRater = user_idRater
         self.user_idRatee = user_idRatee
         self.rating = rating
+        self.comment = comment
 
 
 class UserRateTotal(db.Model):
