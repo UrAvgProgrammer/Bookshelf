@@ -1,0 +1,75 @@
+{% extends "emtp.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Notification
+{% endblock %}
+
+
+{% block body %}
+   <!-- Nav Bar -->
+<nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/home">Bookshelf</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+            <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+            <li><a href="/notification/1"><span class="glyphicon glyphicon-bell"></span> Notification<span class="badge pull-right"></span></a></li>
+            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+          </ul>
+          <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
+            <div class="form-group">
+            <span class="glyphicon glyphicon-search"></span>
+                {{ form.csrf_token }}
+                {{ wtf.form_field(form.search, **{'placeholder':'Search a book ...'}) }}
+            </div>
+        <button type="submit" class="btn btn-default" value="submit">Submit</button>
+      </form>
+        </div>
+      </div>
+</nav> <!-- end of nav bar -->
+<dl>
+  <br><br>
+  {%for pag in pags.items %}
+    {%if pag.status == 1 and pag.shelf_id==user.id%}
+      <form action = "{{ url_for('approval') }}" method = "POST">
+      <td>{{pag.user.first_name }} wants to borrow {{x[loop.index-1]}} </td>
+      <td><input type ="submit" name="app" class="btn btn-primary" value ="YES"></td>
+      <td><input type ="submit" name="app" class="btn btn-primary" value ="NO"></td>
+      <td> ( {{ pag.date }} ) </td>
+      <td><input type="hidden" name="borrower" value = {{pag.user_id}}></td>
+      <td><input type="hidden" name="borrowed" value = {{pag.shelf_id}}></td>
+      <td><input type="hidden" name="book" value = {{pag.bookid}}></td>
+      </form>
+    {% elif pag.status == 2 and pag.user_id==user.id%}
+      <td>{{pag.bookshelf.owner.first_name }} accepted your permission to borrow {{x[loop.index-1]}} </td>
+      <td> ( {{ pag.date }} ) </td> <br>
+    {%endif%}
+
+
+
+  {% endfor %}
+
+  {% for page in pags.iter_pages(left_edge=3,right_edge=3,left_current=3,right_current=3) %}
+
+			{% if page %}
+
+				<a href="{{ url_for('notif',page_num=page) }}">{{ page }}</a>
+			{% else %}
+				...
+			{% endif %}
+
+		{% endfor %}
+
+</dl>
+
+{% endblock %}
