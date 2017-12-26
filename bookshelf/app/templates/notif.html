@@ -23,7 +23,7 @@ Notification
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
             <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
-            <li><a href="/notification/1"><span class="glyphicon glyphicon-bell"></span> Notification<span class="badge pull-right"></span></a></li>
+            <li><a href="/notification/1"><span class="glyphicon glyphicon-bell"></span> Notification<span class ="badge">0</span><span class="badge pull-right"></span></a></li>
             <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
           </ul>
           <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">

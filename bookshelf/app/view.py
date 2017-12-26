@@ -139,6 +139,13 @@ def signup():
 @app.route('/home/<int:page_num>', methods=['GET', 'POST'])
 @login_required
 def home(page_num):
+
+    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+
+    count=0
+    for r in notSeen.items:
+        count =count+1
+
     form = Search()
     if form.validate_on_submit():
         search1 = '%'+form.search.data+'%'
@@ -152,7 +159,7 @@ def home(page_num):
             d = WrittenByAssociation.query.filter_by(book_id=s.book_id).first()
             x.append(s.quantity)
             y.append(d.author.author_first_name + ' ' + d.author.author_last_name)
-        return render_template('homepage1.html', page_num=page_num, book=book, current_user=current_user, form=form, x=x, y=y)
+        return render_template('homepage1.html', page_num=page_num, book=book, current_user=current_user, form=form, x=x, y=y,count=count)
     book = WrittenByAssociation.query.join(Author).paginate(page_num, 12)
     x = []
     y = []
@@ -160,18 +167,24 @@ def home(page_num):
         s = ContainsAsscociation.query.filter_by(book_id=bok.books.book_id).first()
         x.append(s.quantity)
         y.append(s.availability)
-    return render_template('homepage.html', page_num=page_num, book=book, current_user=current_user, form=form, x=x, y=y)
+    return render_template('homepage.html', page_num=page_num, book=book, current_user=current_user, form=form, x=x, y=y,count=count)
 
 
 @app.route('/profile/<int:user_id>/', methods=['GET', 'POST'])
 @login_required
 def profile(user_id):
     form = Search()
+    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+
+    count=0
+    for r in notSeen.items:
+        count =count+1
+
     if user_id == current_user.id:
-        return render_template('profile.html', form=form)
+        return render_template('profile.html', form=form, count=count)
     else:
         user = User.query.filter_by(id=user_id).first()
-        return render_template('diffprofile.html', form=form, user=user)
+        return render_template('diffprofile.html', form=form, user=user,count=count)
 
 
 @app.route('/profile/edit/<int:user_id>/', methods=['GET', 'POST'])
@@ -180,6 +193,13 @@ def editprof(user_id):
     form = Search()
     form1 = EditProfile()
     info = User.query.filter_by(id=user_id).first()
+
+    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+
+    count=0
+    for r in notSeen.items:
+        count =count+1
+
     if form1.validate_on_submit():
         info.first_name = form1.first_name.data
         info.last_name = form1.last_name.data
@@ -188,13 +208,20 @@ def editprof(user_id):
         info.birth_date = form1.birth_date.data
         db.session.commit()
         return redirect(url_for('profile', user_id=current_user.id))
-    return render_template('editprofile.html', form1=form1, form=form, info=info, user_id=user_id)
+    return render_template('editprofile.html', form1=form1, form=form, info=info, user_id=user_id,count=count)
 
 
 @app.route('/home/book/<int:book_id>/<int:page_num>', methods=['GET', 'POST'])
 @login_required
 def indibook(book_id, page_num):
     form = Search()
+
+    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+
+    count=0
+    for r in notSeen.items:
+        count =count+1
+
     book = ContainsAsscociation.query.filter_by(book_id=book_id).paginate(page_num, 12)
     rate = BookRateTotal.query.filter_by(bookRated=book_id).first()
     yx = []
@@ -214,14 +241,21 @@ def indibook(book_id, page_num):
         y.append(s.last_name)
         z.append(s.id)
 
-    return render_template('individualbook.html', yx=yx, title=title, book=book, comment=comment, rate=rate, form=form, book_id=book_id, x=x, y=y, z=z)
+    return render_template('individualbook.html', yx=yx, title=title, book=book, comment=comment, rate=rate, form=form, book_id=book_id, x=x, y=y, z=z,count=count)
 
 
-@app.route('/profile/bookshelf(orig)/<int:user_id>/<int:page_num>', methods=['GET', 'POST'])
+@app.route('/profile/bookshelf/<int:user_id>/<int:page_num>', methods=['GET', 'POST'])
 @login_required
 def bookshelf(user_id, page_num):
     form = Search()
     booksearch = Search()
+
+    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+
+    count=0
+    for r in notSeen.items:
+        count =count+1
+
     if current_user.id == user_id:
         if booksearch.validate_on_submit():
             return redirect(url_for('bookshelfsearch', user_id=current_user.id, page_num=1, searchid=booksearch.search.data))
@@ -233,7 +267,7 @@ def bookshelf(user_id, page_num):
             author = Author.query.filter_by(author_id=s.author_id).first()
             x.append(author.author_first_name)
             y.append(author.author_last_name)
-        return render_template('bookshelf(orig).html', current_user=current_user, form=form, booksearch=booksearch, books=books, x=x, y=y)
+        return render_template('bookshelf.html', current_user=current_user, form=form, booksearch=booksearch, books=books, x=x, y=y,count=count)
     else:
         if booksearch.validate_on_submit():
             if booksearch.validate_on_submit():
@@ -246,13 +280,20 @@ def bookshelf(user_id, page_num):
             author = Author.query.filter_by(author_id=s.author_id).first()
             x.append(author.author_first_name)
             y.append(author.author_last_name)
-        return render_template('diffbookshelf.html', current_user=current_user, form=form, books=books, booksearch=booksearch, user_id=user_id, x=x, y=y)
+        return render_template('diffbookshelf.html', current_user=current_user, form=form, books=books, booksearch=booksearch, user_id=user_id, x=x, y=y,count=count)
 
 
-@app.route('/profile/bookshelf(orig)/<int:user_id>/<int:page_num>/<string:searchid>', methods=['GET', 'POST'])
+@app.route('/profile/bookshelf/<int:user_id>/<int:page_num>/<string:searchid>', methods=['GET', 'POST'])
 @login_required
 def bookshelfsearch(user_id, page_num, searchid):
     form = Search()
+
+    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+
+    count=0
+    for r in notSeen.items:
+        count =count+1
+
     booksearch = Search()
     if current_user.id == user_id:
         search1 = '%'+searchid+'%'
@@ -268,7 +309,7 @@ def bookshelfsearch(user_id, page_num, searchid):
             x.append(author.author_first_name)
             y.append(author.author_last_name)
         return render_template('bookshelfresult.html', current_user=current_user, form=form, search1=search1,
-                               books=books, x=x, y=y, booksearch=booksearch)
+                               books=books, x=x, y=y, booksearch=booksearch,count=count)
     else:
         search1 = '%' + searchid + '%'
         books = ContainsAsscociation.query.join(Books).filter(
@@ -283,17 +324,24 @@ def bookshelfsearch(user_id, page_num, searchid):
             x.append(author.author_first_name)
             y.append(author.author_last_name)
         return render_template('diffbookshelfresult.html', current_user=current_user, form=form, search1=search1,
-                               books=books, x=x, y=y, booksearch=booksearch, user_id=user_id)
+                               books=books, x=x, y=y, booksearch=booksearch, user_id=user_id,count=count)
 
 
 @app.route('/profile/rate_and_comment/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def ratencomm(user_id):
     form = Search()
+
+    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+
+    count=0
+    for r in notSeen.items:
+        count =count+1
+
     if user_id == current_user.id:
-        return render_template('commNrating.html', form=form)
+        return render_template('commNrating.html', form=form,count=count)
     else:
-        return render_template('diffcommNrating.html', form=form)
+        return render_template('diffcommNrating.html', form=form,count=count)
 
 
 @app.route('/notification/<int:page_num>', methods=['GET', 'POST'])
@@ -302,6 +350,15 @@ def notif(page_num):
     form = Search()
     pags = BorrowsAssociation.query.filter(((BorrowsAssociation.status == 1) | (BorrowsAssociation.status == 2))).paginate(page_num,8)
     user = current_user
+
+    unseen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen==0)).paginate(page_num,8)
+
+    for q in unseen.items:
+        q.seen = 1
+        db.session.commit()
+
+
+
     x = []
     for p in pags.items:
         book = Books.query.filter(Books.book_id == p.bookid).first()
@@ -329,7 +386,7 @@ def approval():
 
 
 
-@app.route('/profile/bookshelf(orig)/delete/<int:book_id>', methods=['GET', 'POST'])
+@app.route('/profile/bookshelf/delete/<int:book_id>', methods=['GET', 'POST'])
 @login_required
 def delbook(book_id):
         avail = ContainsAsscociation.query.filter(ContainsAsscociation.book_id == book_id).first()
@@ -339,13 +396,20 @@ def delbook(book_id):
         if avail.quantity <= 0:
             avail.availability = 'NO'
             db.session.commit()
-        return redirect(url_for('bookshelf(orig)', user_id=current_user.id, page_num=1))
+        return redirect(url_for('bookshelf', user_id=current_user.id, page_num=1))
 
 
-@app.route('/profile/bookshelf(orig)/add', methods=['GET', 'POST'])
+@app.route('/profile/bookshelf/add', methods=['GET', 'POST'])
 @login_required
 def addbook():
     form = Addbook()
+
+    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+
+    count=0
+    for r in notSeen.items:
+        count =count+1
+
     if form.validate_on_submit():
         titleNew = form.title.data
         yearNew = form.year.data
@@ -393,7 +457,7 @@ def addbook():
             written = WrittenByAssociation(auth_id.author_id, book.book_id)
             db.session.add(written)
             db.session.commit()
-            return redirect(url_for('bookshelf(orig)', user_id=current_user.id, page_num=1))
+            return redirect(url_for('bookshelf', user_id=current_user.id, page_num=1))
         else:
             bookquantity = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id == current_user.id) & (
                                                               ContainsAsscociation.book_id == books.book_id)).first()
@@ -405,8 +469,8 @@ def addbook():
                 curQuant = bookquantity.quantity
                 bookquantity.quantity = int(curQuant + 1)
                 db.session.commit()
-            return redirect(url_for('bookshelf(orig)', user_id=current_user.id, page_num=1))
-    return render_template('addbook.html', form=form)
+            return redirect(url_for('bookshelf', user_id=current_user.id, page_num=1))
+    return render_template('addbook.html', form=form,count=count)
 
 
 @app.route('/rateBook/<int:book_id>', methods=['POST', 'GET'])
@@ -497,17 +561,17 @@ def borrow(owner_id, book_id):
             BorrowsAssociation.bookid == bookid)).first()
     quant = int(pags.quantity)
     if bookBorrow is None:
-        borrowBook = BorrowsAssociation(current_user.id, otheruserId, 1, bookid)
+        borrowBook = BorrowsAssociation(current_user.id, otheruserId, 1, bookid,0)
         db.session.add(borrowBook)
         db.session.commit()
         flash("Book successfully borrowed", 'success')
-        return redirect(url_for('bookshelf(orig)', user_id=owner_id, page_num=1))
+        return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
     elif bookBorrow is not None:
         flash("Book already borrowed", 'error')
-        return redirect(url_for('bookshelf(orig)', user_id=owner_id, page_num=1))
+        return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
     elif quant == 0:
         flash('Book not available', 'error')
-        return redirect(url_for('bookshelf(orig)', user_id=owner_id, page_num=1))
+        return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
 
 
 

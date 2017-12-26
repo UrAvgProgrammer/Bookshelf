@@ -29,7 +29,7 @@ class User(UserMixin, db.Model):
 
 
 class Bookshelf(db.Model):
-    __tablename__ = 'bookshelf(orig)'
+    __tablename__ = 'bookshelf'
     bookshelf_id = db.Column(db.Integer, primary_key=True)
     bookshef_owner = db.Column(db.Integer, db.ForeignKey('user.id'))
     owner = db.relationship('User', backref='bookshelf_owner')
@@ -70,7 +70,7 @@ class ContainsAsscociation(db.Model):
     __tablename__ = 'contains'
     quantity = db.Column(db.Integer)
     availability = db.Column(db.String(3))
-    shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf(orig).bookshelf_id'), primary_key=True)
+    shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf.bookshelf_id'), primary_key=True)
     book_id = db.Column(db.Integer, db.ForeignKey('books.book_id'), primary_key=True)
     bookshelfcontain = db.relationship('Bookshelf', backref='containingbooks')
     containsbooks = db.relationship('Books', backref='booksBookshelf')
@@ -144,18 +144,20 @@ class BorrowsAssociation(db.Model):
     __tablename__ = 'borrows'
     borrowed = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf(orig).bookshelf_id'))
+    shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf.bookshelf_id'))
     date = db.Column(db.DateTime, default=datetime.datetime.today)
     status = db.Column(db.Integer)
     bookid = db.Column(db.Integer)
+    seen = db.Column(db.Integer)
     user = db.relationship('User', backref='borrowBookshelfs')
     bookshelf = db.relationship('Bookshelf', backref='borrowUsers')
 
-    def __init__(self, user_id='', shelf_id='', status='', bookid=''):
+    def __init__(self, user_id='', shelf_id='', status='', bookid='',seen=''):
         self.user_id = user_id
         self.shelf_id = shelf_id
         self.status = status
         self.bookid = bookid
+        self.seen = seen
 
 
 class BookRateAssociation(db.Model):
