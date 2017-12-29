@@ -140,7 +140,7 @@ def signup():
 @login_required
 def home(page_num):
 
-    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+    notSeen = BorrowsAssociation.query.filter(((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)) |((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.seen==2))).paginate(1,8)
 
     count=0
     for r in notSeen.items:
@@ -174,7 +174,7 @@ def home(page_num):
 @login_required
 def profile(user_id):
     form = Search()
-    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+    notSeen = BorrowsAssociation.query.filter(((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)) |((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.seen==2))).paginate(1,8)
 
     count=0
     for r in notSeen.items:
@@ -194,7 +194,7 @@ def editprof(user_id):
     form1 = EditProfile()
     info = User.query.filter_by(id=user_id).first()
 
-    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+    notSeen = BorrowsAssociation.query.filter(((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)) |((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.seen==2))).paginate(1,8)
 
     count=0
     for r in notSeen.items:
@@ -216,8 +216,7 @@ def editprof(user_id):
 def indibook(book_id, page_num):
     form = Search()
 
-    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
-
+    notSeen = BorrowsAssociation.query.filter(((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)) |((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.seen==2))).paginate(1,8)
     count=0
     for r in notSeen.items:
         count =count+1
@@ -250,7 +249,7 @@ def bookshelf(user_id, page_num):
     form = Search()
     booksearch = Search()
 
-    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+    notSeen = BorrowsAssociation.query.filter(((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)) |((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.seen==2))).paginate(1,8)
 
     count=0
     for r in notSeen.items:
@@ -288,8 +287,7 @@ def bookshelf(user_id, page_num):
 def bookshelfsearch(user_id, page_num, searchid):
     form = Search()
 
-    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
-
+    notSeen = BorrowsAssociation.query.filter(((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)) |((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.seen==2))).paginate(1,8)
     count=0
     for r in notSeen.items:
         count =count+1
@@ -332,7 +330,7 @@ def bookshelfsearch(user_id, page_num, searchid):
 def ratencomm(user_id):
     form = Search()
 
-    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
+    notSeen = BorrowsAssociation.query.filter(((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)) |((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.seen==2))).paginate(1,8)
 
     count=0
     for r in notSeen.items:
@@ -351,8 +349,7 @@ def notif(page_num):
     pags = BorrowsAssociation.query.filter(((BorrowsAssociation.status == 1) | (BorrowsAssociation.status == 2))).paginate(page_num,8)
     user = current_user
 
-    unseen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen==0)).paginate(page_num,8)
-
+    unseen = BorrowsAssociation.query.filter(((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)) |((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.seen==2))).paginate(page_num,8)
     for q in unseen.items:
         q.seen = 1
         db.session.commit()
@@ -374,14 +371,26 @@ def approval():
     book = request.form['book']
 
     approved = BorrowsAssociation.query.filter((BorrowsAssociation.user_id==borrowerId) & (BorrowsAssociation.shelf_id==borrowedId) & (BorrowsAssociation.bookid == book)).first()
+
     if app == "YES":
+        approved.seen = 2
         approved.status = 2
         db.session.commit()
     else:
         approved.status = 3
         db.session.commit()
 
-    return redirect(url_for('notif', user_id=current_user.id, page_num=1))
+    form = Search()
+    pags = BorrowsAssociation.query.filter(((BorrowsAssociation.status == 1) | (BorrowsAssociation.status == 2))).paginate(1,8)
+    user = current_user
+
+    x = []
+    for p in pags.items:
+        book = Books.query.filter(Books.book_id == p.bookid).first()
+        x.append(book.title)
+    return render_template('notif.html', form=form, pags=pags,x=x,user=user)
+
+
 
 
 
@@ -404,8 +413,7 @@ def delbook(book_id):
 def addbook():
     form = Addbook()
 
-    notSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)).paginate(1,8)
-
+    notSeen = BorrowsAssociation.query.filter(((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.seen == 0)) |((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.seen==2))).paginate(1,8)
     count=0
     for r in notSeen.items:
         count =count+1
