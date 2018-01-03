@@ -112,10 +112,10 @@
 
 		{% endfor %}
 
-
-
 	</table>
 	</div>
+
+      <h1>Comments</h1>
 		<div class="large-8 columns">
 	<form action = "{{ url_for('commentPage') }}" method = "POST">
 
@@ -123,18 +123,12 @@
   	{{formComment.submit}}<br><br>
 	<input type="hidden" name="Store" value = {{form.id}}>
 	</form></div>
-	  	<table  class="table table-bordered">
-			<thead>
-			<td>Comments</td>
 
-			</thead>
 		{% for com in comments.items %}
-		<tr>
-			<td>By: {{a[loop.index-1]}} {{b[loop.index-1]}} -  {{com.comment}} ( {{ com.date }} )</td><br>
 
-		</tr>
+			By: {{a[loop.index-1]}} {{b[loop.index-1]}} -  {{com.comment}} ( {{ com.date }} )<br>
+
 		{% endfor %}
-		</table>
   </dl>
 {% endblock %}
 
