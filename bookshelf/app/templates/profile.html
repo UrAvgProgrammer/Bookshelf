@@ -1,98 +1,73 @@
-{% extends "bootstrap/base.html" %}
+{% extends "emtp.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-<title>{% block title %}Profile{% endblock title %}</title>
-{% block styles %}
-        {{ super() }}
-        <link href="/static/design1.css" rel="stylesheet">
-{% endblock %}
-
-{% block scripts %}
-    {{ super() }}
-    <script type ="text/javascript" src="{{ url_for('static', filename = "editform.js") }}"></script>
+{% block title %}
+    Profile
 {% endblock %}
 
 
-{% block content %}
-    <a href="/home" style="float: left;margin-left: 15px;">Home</a>
-    <a href="/logout" style="float: right;margin-right: 15px;">Log out</a>
-    <br><h1>Profile </h1><br>
-    <form method="POST" action="/profile/1">
-  <dl>
-    {{ form.csrf_token }}
-    {{ wtf.form_field(form.first_name, **{'value':data.first_name, 'placeholder':data.first_name})}}
-    {{ wtf.form_field(form.last_name, **{'value':data.last_name, 'placeholder':data.last_name})}}
-    {{ wtf.form_field(form.contact, **{'value':data.contact_number, 'placeholder':data.contact_number})}}
-    {{ wtf.form_field(form.submit) }}<input class="btn btn-default" id="submit" name="reset" type="reset" value="Reset">
-    </form>
-  </dl>
-  <dl>
-  <br>
-
- <form action = "{{ url_for('searchGet',user_id = current_user.id ,page_num=1) }}" method = "POST">
-    <li><input type="text" name = "search"/></li><br>
-    </form>
-    <div class = "container">
-    <br>
-	<div style="width:340px; margin:0 auto;"><form action = "{{ url_for('adder') }}" method = "POST">
-    	<input type="submit" value="Add" />
-
-	</form></div>
-
-        <table  class="table table-bordered">
-	<thead>
-    	<td>Title</td>
-    	<td>Year Published</td>
-		<td>Type</td>
-		<td>Edition</td>
-		<td>ISBN</td>
-		<td>Quantity</td>
-		<td>Publisher</td>
-		<td>Author</td>
-
-
-	</thead>
-	{% for pag in pags.items %}
-		<tr>
-			<form action = "{{ url_for('deletefunc') }}" method = "POST">
-
-
-            <td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.title}}</font></td>
-            <td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.year_published}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.types}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.edition}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.isbn}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.quantity}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{pag.containsbooks.publisher.publisher_name}}</font></td>
-			<td bgcolor="#f9ebf2"><font color="#b97a46">{{x[loop.index-1]}} {{y[loop.index-1]}} </font></td>
-			<td><input type="hidden" name="Pub" value = {{pag.containsbooks.publisher.publisher_name}}></td>
-			<td><input type="hidden" name="Store" value = {{pag.containsbooks.book_id}}></td>
-			<td><input type ="submit" class="btn btn-primary" value ="Delete"></td>
-			<td><input type ="submit" class="btn btn-primary" formaction = "/updateBook" value ="Update"></td>
-			</form>
-		</tr>
-	{% endfor %}
-
-		{% for page in pags.iter_pages(left_edge=3,right_edge=3,left_current=3,right_current=3) %}
-
-			{% if page %}
-
-				<a href="{{ url_for('profile',user_id = data.id ,page_num=page) }}">{{ page }}</a>
-			{% else %}
-				...
-			{% endif %}
-
-		{% endfor %}
-
-
-
-	</table>
-
-    </form>
-    </div>
-
-
-    </dl>
+{% block body %}
+    <!-- Nav Bar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/home">Bookshelf</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+            <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
+            {% if count %}
+                <span class="badge pull-right">{{ count }}</span>
+            {% endif %}
+            </a></li>
+            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+          </ul>
+          <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
+            <div class="form-group">
+            <span class="glyphicon glyphicon-search"></span>
+                {{ form.csrf_token }}
+                {{ wtf.form_field(form.search, **{'placeholder':'Search a book ...'}) }}
+            </div>
+        <button type="submit" class="btn btn-default" value="submit">Submit</button>
+      </form>
+        </div>
+      </div>
+    </nav> <!-- end of nav bar -->
+    <!-- side bar -->
+     <div class="container-fluid">
+      <div class="row">
+        <div class="col-sm-3 col-md-2 sidebar">
+          <ul class="nav nav-sidebar">
+            <div class="col-xs-6 col-sm-3 placeholder">
+                <img class ="img-circle" src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Profile Picture">
+            </div>
+          </ul>
+          <ul class="nav nav-sidebar">
+              <li class="active"><a href="/profile/{{ current_user.id }}">Profile<span class="sr-only">(current)</span></a></li>
+            <li><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf</a></li>
+            <li><a href="/profile/rate_and_comment/{{ current_user.id }}">Comments and rating</a></li>
+          </ul>
+        </div>
+          <!-- Contetnt -->
+          <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+          <h1 class="page-header">My profile</h1>
+              <div class="col-lg-6 bg-success" style="text-align: center; padding: 2%">
+                  <h3>First name: {{ current_user.first_name }}</h3>
+                  <h3>Last name: {{ current_user.last_name }}</h3>
+                  <h3>Sex: {{ current_user.sex }}</h3>
+                  <h3>Contact Number: {{ current_user.contact_number }}</h3>
+                  <h3>Birthdate: {{ current_user.birth_date }}</h3>
+                  <a href="/profile/edit/{{ current_user.id }}" class="btn btn-primary">Update</a>
+              </div>
+          </div>
+        </div>
+</div><!-- end of side bar -->
 {% endblock %}
-
-

@@ -1,0 +1,84 @@
+{% extends "emtp.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+    Bookshelf
+{% endblock %}
+
+
+{% block body %}
+  <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/home">Bookshelf</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+            <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
+            {% if count %}
+                <span class="badge pull-right">{{ count }}</span>
+            {% endif %}
+            </a></li>
+            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+          </ul>
+          <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
+            <div class="form-group">
+            <span class="glyphicon glyphicon-search"></span>
+                {{ form.csrf_token }}
+                {{ wtf.form_field(form.search, **{'placeholder':'Search a book ...'}) }}
+            </div>
+        <button type="submit" class="btn btn-default" value="submit">Submit</button>
+      </form>
+        </div>
+      </div>
+    </nav>
+
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-1 main">
+    <br>
+    {% if not book.items %}
+         <h1 class="page-header">Books</h1>
+         <div class="row placeholders">
+                  <div class="row">
+                      <h1>No Book to Display!</h1>
+                  </div>
+         </div>
+    {% else %}
+          <h1 class="page-header">Books</h1>
+         <div class="row placeholders">
+                  <div class="row">
+              {% for bookss in book.items %}
+               <div class="col-xs-6 col-sm-3">
+                <div class="square">
+                    <img class ="img-square" src="/static/image/book.png" width="150" height="150" alt="Generic placeholder thumbnail">
+                    <a href="{{ url_for('indibook', book_id=bookss.books.book_id, page_num=1) }}" ><h3>{{ bookss.books.title }}</h3></a>
+                    <span class="text-muted">Author: {{ bookss.author.author_first_name }} {{ bookss.author.author_last_name }}</span><br>
+                    <span class="text-muted">Edition: {{ bookss.books.edition }}</span><br>
+                    <span class="text-muted">Quantity: {{x[loop.index-1]}}</span>
+                </div>
+                </div>
+              {% endfor %}
+          </div>
+            <div class="footer">{% for page in book.iter_pages(left_edge=3,right_edge=3,left_current=3,right_current=3) %}
+                {% if page %}
+                    <a href="{{ url_for('home', page_num=page) }}">{{ page }}</a>
+                {% else %}
+                    ....
+                {% endif %}
+            {% endfor %}
+            </div>
+    </div>
+    {% endif %}
+    </div>
+    {% block scripts %}
+    <script  src="{{ url_for('static', filename='js/index.js') }}"></script>
+        {% endblock %}
+
+{% endblock %}

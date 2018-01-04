@@ -1,0 +1,57 @@
+{% extends "emtp.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Notification
+{% endblock %}
+
+
+{% block body %}
+   <!-- Nav Bar -->
+<nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/home">Bookshelf</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+            <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification<span class="badge pull-right"></span></a></li>
+            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+          </ul>
+          <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
+            <div class="form-group">
+            <span class="glyphicon glyphicon-search"></span>
+                {{ form.csrf_token }}
+                {{ wtf.form_field(form.search, **{'placeholder':'Search a book ...'}) }}
+            </div>
+        <button type="submit" class="btn btn-default" value="submit">Submit</button>
+      </form>
+        </div>
+      </div>
+</nav> <!-- end of nav bar -->
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-1 main">
+          <h1 class="page-header">Notification</h1>
+        <p>
+            {%for pag in pags.items %}
+                <form action="#" method="post">
+                    <a href="/profile/{{ pag.user.id }}"> <h2>{{ pag.user.first_name }} {{ pag.user.last_name }}</h2>
+                    </a>( {{ pag.date }} )<br>
+                    wants to borrow <a href="/home/book/{{ pag.bookid }}/1">{{x[loop.index-1]}}</a><br>
+                    <input type="hidden" name="borrower" value="{{ pag.user_id }}">
+                    <input type="hidden" name="borrowed" value="{{ pag.shelf_id }}">
+                    <input type="hidden" name="book" value="{{ pag.bookid }}">
+                    <button type="submit" name="app" value="YES" formaction="{{ url_for('notif') }}" class="btn btn-success">Accept</button>
+                    <button type="submit" name="app" value="NO" formaction="{{ url_for('notif') }}" class="btn btn-danger">Reject</button>
+                </form>
+            {% endfor %}
+        </p>
+    </div>
+{% endblock %}
