@@ -73,7 +73,7 @@
                            <form action="{{ url_for('bookshelf', user_id=current_user.id, page_num=1) }}" method ='post'>
                                {{ booksearch.csrf_token }}
                                {{ wtf.form_field(booksearch.search, **{'placeholder':'Search a book ...'}) }}
-                               <button type="submit" class="btn btn-default" value="submit">Search</button>
+                               <!--<button type="submit" class="btn btn-default" value="submit">Search</button>-->
                            </form>
                        </li>
                       <li><a href="/profile/bookshelf/add" class="btn btn-link" role="button">Add book</a></li>

@@ -83,7 +83,7 @@
                         {% for book in books.items %}
                             <div class="col-xs-6 col-sm-3">
                                 <div class="square">
-                                <img class ="img-square" src="/static/image/book.png" width="150" height="150" alt="Generic placeholder thumbnail">
+                                <img class ="img-square" src="{{ url_for('static',filename='image/book.png') }}" width="150" height="150" alt="Generic placeholder thumbnail">
                                 <a href="/book/{{ book.book_id }}"><h3>{{ book.containsbooks.title }}</h3></a>
                                 <span class="text-muted">Edition: {{ book.containsbooks.edition }}</span><br>
                                 <span class="text-muted">Type: {{ book.containsbooks.types }}</span><br>
@@ -94,7 +94,7 @@
                             </div>
                         {% endfor %}
                     </div>
-          <div class="footer">
+            <div class="footer">
               {% for page in books.iter_pages() %}
                     {% if page %}
                          <a href="{{ url_for('bookshelfsearch', user_id=current_user.id, page_num=page, searchid=search1) }}">{{ page }}</a>
@@ -103,7 +103,7 @@
                     {% endif %}
               {% endfor %}
            </div>
-          </div>
+            </div>
               {% endif %}
           </div>
         </div>

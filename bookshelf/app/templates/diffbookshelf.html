@@ -88,12 +88,12 @@
                                 <span class="text-muted">Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</span><br>
                                  <h3>Rate</h3>
                                     <form action ="/rateBook/{{ book.book_id }}" method = "POST">
-                                        <input type="radio" name="rateUser" value=1 /> 1
+                                        <input type="radio" name="rateUser" value=1 required/> 1
                                         <input type="radio" name="rateUser" value=2 /> 2
                                         <input type="radio" name="rateUser" value=3 /> 3
                                         <input type="radio" name="rateUser" value=4 /> 4
                                         <input type="radio" name="rateUser" value=5 /> 5<br>
-                                        <textarea rows="4" cols="50" name="comment" id="comment"></textarea><br>
+                                        <textarea rows="4" cols="50" name="comment" id="comment" required></textarea><br>
                                         <input type="submit" class="btn btn-default" value="Rate and Comment">
                                     </form>
                                     <a href="/borrow/{{user_id}}/{{ book.containsbooks.book_id }}" class="btn btn-info" role="button">Borrow</a>

@@ -1,5 +1,6 @@
 from app import app, User, Search, LoginForm, RegistrationForm, db, Author, Bookshelf, BookRateAssociation, Books, \
-    WrittenByAssociation, ContainsAsscociation, Addbook, Publisher, BookRateTotal, BorrowsAssociation, EditProfile
+    WrittenByAssociation, ContainsAsscociation, Addbook, Publisher, BookRateTotal, BorrowsAssociation, EditProfile, \
+    UserRateTotal, UserRateAssociation
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from werkzeug.security import check_password_hash
@@ -140,8 +141,9 @@ def signup():
 @login_required
 def home(page_num):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.seen == 0)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.seen == 2))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0))).paginate(1, 8)
 
     count = 0
     for r in notSeen.items:
@@ -175,8 +177,10 @@ def home(page_num):
 @login_required
 def profile(user_id):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.seen == 0)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.seen == 2))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
+            BorrowsAssociation.seen == 0)) | (
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+            (BorrowsAssociation.seen == 0))).paginate(1, 8)
     count = 0
     for r in notSeen.items:
         count = count + 1
@@ -192,8 +196,10 @@ def profile(user_id):
 @login_required
 def editprof(user_id):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.seen == 2))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
+            BorrowsAssociation.seen == 0)) | (
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+            (BorrowsAssociation.seen == 0))).paginate(1, 8)
     count = 0
     for r in notSeen.items:
         count = count + 1
@@ -215,8 +221,10 @@ def editprof(user_id):
 @login_required
 def indibook(book_id, page_num):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.seen == 2))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
+            BorrowsAssociation.seen == 0)) | (
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+            (BorrowsAssociation.seen == 0))).paginate(1, 8)
     count = 0
     for r in notSeen.items:
         count = count + 1
@@ -248,8 +256,10 @@ def indibook(book_id, page_num):
 @login_required
 def bookshelf(user_id, page_num):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.seen == 2))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
+            BorrowsAssociation.seen == 0)) | (
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+            (BorrowsAssociation.seen == 0))).paginate(1, 8)
     count = 0
     for r in notSeen.items:
         count = count + 1
@@ -286,8 +296,10 @@ def bookshelf(user_id, page_num):
 @login_required
 def bookshelfsearch(user_id, page_num, searchid):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.seen == 2))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
+            BorrowsAssociation.seen == 0)) | (
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+            (BorrowsAssociation.seen == 0))).paginate(1, 8)
     count = 0
     for r in notSeen.items:
         count = count + 1
@@ -328,13 +340,114 @@ def bookshelfsearch(user_id, page_num, searchid):
 @app.route('/profile/rate_and_comment/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def ratencomm(user_id):
+    notSeen = BorrowsAssociation.query.filter(
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
+            BorrowsAssociation.seen == 0)) | (
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+            (BorrowsAssociation.seen == 0))).paginate(1, 8)
+    count = 0
+    for r in notSeen.items:
+        count = count + 1
     form = Search()
     if user_id == current_user.id:
-        
-        return render_template('commNrating.html', form=form)
+        rating = UserRateTotal.query.filter_by(userRatee=user_id).first()
+        rates = UserRateAssociation.query.filter((UserRateAssociation.user_idRatee == current_user.id))
+        x = []
+        for r in rates:
+            s = User.query.filter_by(id=r.user_idRater).first()
+            x.append(s.first_name + ' ' + s.last_name)
+        return render_template('commNrating.html', form=form, rating=rating, rates=rates, x=x, count=count)
     else:
         user = User.query.filter_by(id=user_id).first()
-        return render_template('diffcommNrating.html', form=form, user=user)
+        otheruserId = user_id
+        rating = UserRateTotal.query.filter_by(userRatee=user_id).first()
+        rates = UserRateAssociation.query.filter((UserRateAssociation.user_idRatee == user_id))
+        xs = []
+        for r in rates:
+            s = User.query.filter_by(id=r.user_idRater).first()
+            xs.append(s.first_name + ' ' + s.last_name)
+        if request.method == 'POST':
+            rateNew = request.form['rateUser']
+            comment = request.form['comment']
+            rateOld = UserRateAssociation.query.filter((UserRateAssociation.user_idRatee == otheruserId) & (
+                UserRateAssociation.user_idRater == current_user.id)).first()
+
+            if rateOld is not None:
+                rateOld.rating = rateNew
+                rateOld.comment = comment
+                db.session.commit()
+
+                totOld = UserRateTotal.query.filter(UserRateTotal.userRatee == otheruserId).first()
+                if totOld is not None:
+                    rateTot = UserRateAssociation.query.filter(
+                        UserRateAssociation.user_idRatee == otheruserId).paginate(1, 6)
+
+                    x = 0
+                    count = 0
+                    for p in rateTot.items:
+                        r = int(p.rating)
+                        x = float(x + r)
+                        count = float(count + 1)
+
+                    totRate = float(x / count)
+                    totOld.totalRate = totRate
+                    db.session.commit()
+                else:
+                    rateTot = UserRateAssociation.query.filter(
+                        UserRateAssociation.user_idRatee == otheruserId).paginate(1, 6)
+
+                    x = 0
+                    count = 0
+                    for p in rateTot.items:
+                        r = int(p.rating)
+                        x = float(x + r)
+                        count = float(count + 1)
+
+                    totRate = float(x / count)
+
+                    newRateTot = UserRateTotal(otheruserId, current_user.id, totRate)
+                    db.session.add(newRateTot)
+                    db.session.commit()
+            else:
+
+                newRater = UserRateAssociation(current_user.id, otheruserId, rateNew, comment)
+                db.session.add(newRater)
+                db.session.commit()
+
+                totOld = UserRateTotal.query.filter(UserRateTotal.userRatee == otheruserId).first()
+                if totOld is not None:
+                    rateTot = UserRateAssociation.query.filter(
+                        UserRateAssociation.user_idRatee == otheruserId).paginate(1, 6)
+
+                    x = 0
+                    count = 0
+                    for p in rateTot.items:
+                        r = int(p.rating)
+                        x = float(x + r)
+                        count = float(count + 1)
+
+                    totRate = float(x / count)
+                    totOld.totalRate = totRate
+                    db.session.commit()
+                else:
+                    rateTot = UserRateAssociation.query.filter(
+                        UserRateAssociation.user_idRatee == otheruserId).paginate(1, 6)
+
+                    x = 0
+                    count = 0
+                    for p in rateTot.items:
+                        r = int(p.rating)
+                        x = float(x + r)
+                        count = float(count + 1)
+
+                    totRate = float(x / count)
+
+                    newRateTot = UserRateTotal(otheruserId, current_user.id, totRate)
+                    db.session.add(newRateTot)
+                    db.session.commit()
+                return redirect(url_for('ratencomm', user_id=user_id))
+        return render_template('diffcommNrating.html', form=form, user=user, rating=rating, rates=rates, xs=xs,
+                               count=count)
 
 
 @app.route('/notification', methods=['GET', 'POST'])
@@ -343,18 +456,27 @@ def notif():
     form = Search()
     unseen = BorrowsAssociation.query.filter(
         ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.seen == 2)))
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2)))
 
     for q in unseen:
         q.seen = 1
         db.session.commit()
 
-    pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1)).paginate(1,8)
+    pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) &
+                                           (BorrowsAssociation.shelf_id == current_user.id) |
+                                           ((BorrowsAssociation.status == 2) &
+                                           (BorrowsAssociation.user_id == current_user.id))
+                                           ).paginate(1, 8)
 
     x = []
+    y = []
+    i = []
     for p in pags.items:
         book = Books.query.filter(Books.book_id == p.bookid).first()
+        s = User.query.filter(User.id == p.shelf_id).first()
         x.append(book.title)
+        i.append(s.id)
+        y.append(s.first_name + ' ' + s.last_name)
 
     if request.method == 'POST':
         app = request.form['app']
@@ -367,7 +489,7 @@ def notif():
             BorrowsAssociation.bookid == book)).first()
 
         if app == "YES":
-            approved.seen = 1
+            approved.seen = 0
             approved.status = 2
             db.session.commit()
             delbook(book)
@@ -376,14 +498,17 @@ def notif():
             approved.status = 0
             db.session.commit()
 
-        pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1)).paginate(1, 8)
-
+        pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) &
+                                               (BorrowsAssociation.shelf_id == current_user.id) |
+                                               (BorrowsAssociation.status == 2) &
+                                               (BorrowsAssociation.user_id == current_user.id)
+                                               ).paginate(1, 8)
         x = []
         for p in pags.items:
             book = Books.query.filter(Books.book_id == p.bookid).first()
             x.append(book.title)
-        return render_template('notif.html', form=form, pags=pags, x=x)
-    return render_template('notif.html', form=form, pags=pags, x=x)
+        return render_template('notif.html', form=form, pags=pags, x=x, y=y, i=i)
+    return render_template('notif.html', form=form, pags=pags, x=x, y=y, i=i)
 
 
 @app.route('/profile/bookshelf/delete/<int:book_id>', methods=['GET', 'POST'])
@@ -403,8 +528,10 @@ def delbook(book_id):
 @login_required
 def addbook():
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.seen == 2))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
+            BorrowsAssociation.seen == 0)) | (
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+            (BorrowsAssociation.seen == 0))).paginate(1, 8)
     count = 0
     for r in notSeen.items:
         count = count + 1
