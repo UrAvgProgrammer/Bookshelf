@@ -23,7 +23,10 @@
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
             <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
-            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification</a></li>
+            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
+            {% if count %}
+                <span class="badge pull-right">{{ count }}</span>
+            {% endif %}</a></li>
             <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
           </ul>
           <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
@@ -49,7 +52,7 @@
           <ul class="nav nav-sidebar">
             <li><a href="/profile/{{ user_id }}">Profile</a></li>
             <li class="active"><a href="/profile/bookshelf/{{user_id }}/1">Bookshelf<span class="sr-only">(current)</span></a></li>
-            <li><a href="/profile/rate_and_comment">Comments and rating</a></li>
+            <li><a href="/profile/rate_and_comment/{{ user_id }}">Comments and rating</a></li>
           </ul>
         </div>
           <!-- Contetnt -->
@@ -59,7 +62,7 @@
           <div class="row placeholders">
                   <div class="row">
                       <h1>No books to display</h1>
-          </div>
+                  </div>
               {% else %}
                   <div class="page-header">
                    <ul class="list-inline">
@@ -72,34 +75,37 @@
                        </li>
                    </ul>
                   </div>
-          <div class="row placeholders">
+          <div class="container-fluid">
                   <div class="row">
                         {% for book in books.items %}
-                            {% if book.quantity != 0 %}
-                                 <div class="col-md-6 bg-info" style="text-align: center;padding-top: 2%; padding-bottom: 2%">
+                                 <div class="col-sm-4 bg-info" style="text-align: center;padding-top: 2%; padding-bottom: 2%">
                                 <img class ="img-square" src="/static/image/book.png" width="150" height="150" alt="Generic placeholder thumbnail">
                                 <a href="{{ url_for('indibook', book_id=book.book_id, page_num=1) }}"><h3>{{ book.containsbooks.title }}</h3></a>
                                 <span class="text-muted">Edition: {{ book.containsbooks.edition }}</span><br>
                                 <span class="text-muted">Type: {{ book.containsbooks.types }}</span><br>
                                 <span class="text-muted">Year Published: {{ book.containsbooks.year_published }}</span><br>
                                 <span class="text-muted">Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</span><br>
+                                     <span class="text-muted">Quantity: {{ book.quantity }}</span><br>
                                  <h3>Rate</h3>
                                     <form action ="/rateBook/{{ book.book_id }}" method = "POST">
-                                        <input type="radio" name="rateUser" value=1 /> 1
+                                        <input type="radio" name="rateUser" value=1 required/> 1
                                         <input type="radio" name="rateUser" value=2 /> 2
                                         <input type="radio" name="rateUser" value=3 /> 3
                                         <input type="radio" name="rateUser" value=4 /> 4
                                         <input type="radio" name="rateUser" value=5 /> 5<br>
-                                        <textarea rows="4" cols="50" name="comment" id="comment"></textarea><br>
+                                        <textarea rows="4" cols="40" name="comment" id="comment" required></textarea><br>
                                         <input type="submit" class="btn btn-default" value="Rate and Comment">
                                     </form>
-                                    <a href="/borrow/{{user_id}}/{{ book.containsbooks.book_id }}" class="btn btn-info" role="button">Borrow</a>
+                                   {% if book.quantity != 0 %}
+                                        <a href="/borrow/{{user_id}}/{{ book.containsbooks.book_id }}" class="btn btn-info" role="button">Borrow</a>
+                                    {% else %}
+                                        <button type="button" class="btn btn-info" disabled>Borrow</button>
+                                    {% endif %}
                                 </div>
-                            </div>
-                            {% endif %}
                         {% endfor %}
+                            </div>
                     </div>
-              <div class="footer">
+              <div class="footer" style="text-align: center">
               {% for page in books.iter_pages(left_edge=3,right_edge=3,left_current=3,right_current=3) %}
                     {% if page %}
                          <a href="{{ url_for('bookshelf', user_id=user_id, page_num=page) }}">{{ page }}</a>

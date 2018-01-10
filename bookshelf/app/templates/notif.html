@@ -37,4 +37,26 @@ Notification
         </div>
       </div>
 </nav> <!-- end of nav bar -->
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-1 main">
+          <h1 class="page-header">Notifications</h1>
+        <p>
+            {%for pag in pags.items %}
+                {% if pag.status == 2 %}
+                    <a href="/profile/{{i[loop.index-1]}}"> <h3>{{y[loop.index-1]}}</h3>
+                    </a> accepted your request.
+                {% else %}
+                <form action="#" method="post">
+                    <a href="/profile/{{ pag.user.id }}"> <h3>{{ pag.user.first_name }} {{ pag.user.last_name }}</h3>
+                    </a>( {{ pag.date }} )<br>
+                    wants to borrow <a href="/home/book/{{ pag.bookid }}/1">{{x[loop.index-1]}}</a><br>
+                    <input type="hidden" name="borrower" value="{{ pag.user_id }}">
+                    <input type="hidden" name="borrowed" value="{{ pag.shelf_id }}">
+                    <input type="hidden" name="book" value="{{ pag.bookid }}">
+                    <button type="submit" name="app" value="YES" formaction="{{ url_for('notif') }}" class="btn btn-success">Accept</button>
+                    <button type="submit" name="app" value="NO" formaction="{{ url_for('notif') }}" class="btn btn-danger">Reject</button>
+                </form>
+                {% endif %}
+            {% endfor %}
+        </p>
+    </div>
 {% endblock %}

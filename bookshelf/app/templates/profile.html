@@ -23,7 +23,11 @@
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
             <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
-            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification</a></li>
+            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
+            {% if count %}
+                <span class="badge pull-right">{{ count }}</span>
+            {% endif %}
+            </a></li>
             <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
           </ul>
           <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">

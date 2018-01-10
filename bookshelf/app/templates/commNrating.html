@@ -23,7 +23,12 @@
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
             <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
-            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification</a></li>
+            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
+            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
+            {% if count %}
+                <span class="badge pull-right">{{ count }}</span>
+            {% endif %}
+            </a></li>
             <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
           </ul>
           <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
@@ -42,8 +47,8 @@
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
           <ul class="nav nav-sidebar">
-            <div class="col-xs-6 col-sm-3 placeholder">
-                <img class ="img-square"  src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Generic placeholder thumbnail">
+            <div class="col-xs-6 col-sm-3">
+                <img class ="img-circle"  src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Generic placeholder thumbnail">
                 </div>
           </ul>
           <ul class="nav nav-sidebar">
@@ -56,7 +61,12 @@
           <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
           <h1 class="page-header">Comments and Rating</h1>
           <div class="row placeholders">
-              Nothing to show here!
+              <h1>Overall Rating<br>{{ rating.totalRate }}<br></h1><br>
+              {% for s in rates %}
+              <a href="{{ url_for('profile', user_id=s.user_idRater) }}">{{x[loop.index-1]}}</a>:
+                  {% for com in range(s.rating) %} <span class="glyphicon glyphicon-star"></span> {% endfor %}
+                  {{ s.comment }}<br>
+              {% endfor %}
           </div>
           </div>
         </div>

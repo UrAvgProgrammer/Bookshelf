@@ -23,7 +23,10 @@
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
             <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
-            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification</a></li>
+            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
+            {% if count %}
+                <span class="badge pull-right">{{ count }}</span>
+            {% endif %}</a></li>
             <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
           </ul>
           <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
@@ -78,20 +81,19 @@
           <div class="row placeholders">
                   <div class="row">
                         {% for book in books.items %}
-                            <div class="col-xs-6 col-sm-3">
-                                <div class="square">
-                                <img class ="img-square" src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="150" height="150" alt="Generic placeholder thumbnail">
+                           <div class="col-sm-4 bg-info" style="text-align: center;padding-top: 2%; padding-bottom: 2%">
+                                <img class ="img-square" src="{{ url_for('static',filename='image/book.png') }}" width="150" height="150" alt="Generic placeholder thumbnail">
                                 <a href="/book/{{ book.book_id }}"><h3>{{ book.containsbooks.title }}</h3></a>
                                 <span class="text-muted">Edition: {{ book.containsbooks.edition }}</span><br>
                                 <span class="text-muted">Type: {{ book.containsbooks.types }}</span><br>
                                 <span class="text-muted">Year Published: {{ book.containsbooks.year_published }}</span><br>
                                 <span class="text-muted">Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</span><br>
-                                <a href="#" class="btn btn-info" role="button">Delete</a>
-                                </div>
+                                <a href="#" class="btn btn-success" role="button">Return</a>
+                                <a href="/profile/bookshelf/delete/{{ book.containsbooks.book_id }}" class="btn btn-danger" role="button">Delete</a>
                             </div>
                         {% endfor %}
                     </div>
-          <div class="footer">
+            <div class="footer">
               {% for page in books.iter_pages() %}
                     {% if page %}
                          <a href="{{ url_for('bookshelfsearch', user_id=current_user.id, page_num=page, searchid=search1) }}">{{ page }}</a>
@@ -100,7 +102,7 @@
                     {% endif %}
               {% endfor %}
            </div>
-          </div>
+            </div>
               {% endif %}
           </div>
         </div>

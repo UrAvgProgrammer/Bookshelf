@@ -75,7 +75,7 @@ class ContainsAsscociation(db.Model):
     bookshelfcontain = db.relationship('Bookshelf', backref='containingbooks')
     containsbooks = db.relationship('Books', backref='booksBookshelf')
 
-    def __init__(self, shelf_id='', book_id='',quantity='',availability=''):
+    def __init__(self, shelf_id='', book_id='', quantity='', availability=''):
         self.shelf_id = shelf_id
         self.book_id = book_id
         self.quantity = quantity
@@ -148,14 +148,16 @@ class BorrowsAssociation(db.Model):
     date = db.Column(db.DateTime, default=datetime.datetime.today)
     status = db.Column(db.Integer)
     bookid = db.Column(db.Integer)
+    seen = db.Column(db.Integer)
     user = db.relationship('User', backref='borrowBookshelfs')
     bookshelf = db.relationship('Bookshelf', backref='borrowUsers')
 
-    def __init__(self, user_id='', shelf_id='', status='', bookid=''):
+    def __init__(self, user_id='', shelf_id='', status='', bookid='', seen=''):
         self.user_id = user_id
         self.shelf_id = shelf_id
         self.status = status
         self.bookid = bookid
+        self.seen = seen
 
 
 class BookRateAssociation(db.Model):
@@ -167,7 +169,7 @@ class BookRateAssociation(db.Model):
     user = db.relationship('User', backref='user_booksRate')
     books = db.relationship('Books', backref='bookRate')
 
-    def __init__(self, user_id='',book_id='',rating='',comment=''):
+    def __init__(self, user_id='', book_id='', rating='', comment=''):
         self.user_id = user_id
         self.book_id = book_id
         self.rating = rating
