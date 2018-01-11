@@ -82,8 +82,7 @@
           <div class="container-fluid">
                   <div class="row">
                         {% for book in books.items %}
-                            {% if book.quantity != 0 %}
-                                <div class="col-lg-6 bg-info" style="text-align: center;padding-top: 2%; padding-bottom: 2%">
+                                <div class="col-sm-4 bg-info" style="text-align: center;padding-top: 2%; padding-bottom: 2%">
                                 <img class ="img-square" src="/static/image/book.png" width="150" height="150" alt="Generic placeholder thumbnail">
                                 <h3>{{ book.containsbooks.title }}</h3>
                                 <span class="text-muted">Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</span><br>
@@ -91,13 +90,12 @@
                                 <span class="text-muted">Type: {{ book.containsbooks.types }}</span><br>
                                 <span class="text-muted">Edition: {{ book.containsbooks.edition }}</span><br>
                                 <span class="text-muted">Quantity: {{ book.quantity }}</span><br>
+                                <a href="#" class="btn btn-success" role="button">Return</a>
                                 <a href="/profile/bookshelf/delete/{{ book.containsbooks.book_id }}" class="btn btn-danger" role="button">Delete</a>
-
                             </div>
-                            {% endif %}
                         {% endfor %}
                     </div>
-          <div class="footer">
+          <div class="footer" style="text-align: center">
               {% for page in books.iter_pages(left_edge=3,right_edge=3,left_current=3,right_current=3) %}
                     {% if page %}
                          <a href="{{ url_for('bookshelf', user_id=current_user.id, page_num=page) }}">{{ page }}</a>

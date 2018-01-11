@@ -38,17 +38,18 @@ Welcome to Bookshelf
 
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-1 main">
     <br>
-          <h1 class="page-header">Book</h1>
+          <h1 class="page-header">{{ title }}</h1>
          <div class="row placeholders">
                   <div class="row">
                   <div class="col-md-12 bg-success" style="padding: 3%; margin-bottom: 2%; border-radius: 5px">
-                    <h1>{{ title }}</h1>
+                    <!--<h1>{{ title }}</h1>-->
                     <h3>Rating</h3>
                     <div class="badge"><h1>{{ rate.totalRate }}</h1></div>
                       <div class="square" style="margin-top: .5%;">
                       <h2>Rate and Comments</h2>
                           {% for com in comment %}
-                              {{yx[loop.index-1]}}: {{ com.rating }} <span class="glyphicon-star-empty"> {{ com.comment }}</span><br>
+                              {{yx[loop.index-1]}}: {% for com in range(com.rating) %} <span class="glyphicon glyphicon-star">
+                          </span> {% endfor %} {{ com.comment }}<br>
                           {% endfor %}
                       </div>
                   </div>

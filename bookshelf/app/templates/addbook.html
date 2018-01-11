@@ -22,7 +22,7 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-            <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
+            <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> {{ current_user.first_name }}</a></li>
             <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
             {% if count %}
                 <span class="badge pull-right">{{ count }}</span>
@@ -32,6 +32,8 @@
           <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
             <div class="form-group">
             <span class="glyphicon glyphicon-search"></span>
+                {{ form1.csrf_token }}
+                {{ wtf.form_field(form1.search, **{'placeholder':'Search a book ...'}) }}
             </div>
         <button type="submit" class="btn btn-default" value="submit">Submit</button>
       </form>

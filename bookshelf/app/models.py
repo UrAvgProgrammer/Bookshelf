@@ -56,6 +56,7 @@ class Books(db.Model):
     publisher = db.relationship('Publisher', backref='bookPublish')
     booksInGenre = db.relationship('HasGenreAssociation', backref='books_genre')
     rateBooks = db.relationship('BookRateAssociation', backref='books_rateBooks')
+    borrowcount = db.Column(db.Integer, default=0)
 
     def __init__(self, title='', edition='', year_published='', isbn='', types='', publisher_id=''):
         self.title = title
@@ -181,7 +182,7 @@ class BookRateTotal(db.Model):
     numRate = db.Column(db.Integer, primary_key=True)
     userRater = db.Column(db.Integer, db.ForeignKey('user.id'))
     bookRated = db.Column(db.Integer, db.ForeignKey('books.book_id'))
-    totalRate = db.Column(db.Float)
+    totalRate = db.Column(db.Float, default=0)
 
     def __init__(self, userRater='', bookRated='', totalRate=''):
         self.userRater = userRater

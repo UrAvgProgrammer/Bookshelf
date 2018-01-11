@@ -54,7 +54,9 @@ def tosearch(page_num, item):
             s = ContainsAsscociation.query.filter_by(book_id=bok.book_id).first()
             d = WrittenByAssociation.query.filter_by(book_id=s.book_id).first()
             x.append(s.quantity)
-            y.append(d.author.author_first_name + ' ' + d.author.author_last_name)
+            y.append(d.author.author_first_name + ' ' + d.author
+
+                     .author_last_name)
         return render_template('indexres.html', book=book, page_num=page_num, item=item, form=form, x=x, y=y)
     book = ContainsAsscociation.query.join(Books).filter(((Books.title.like(search1)) | (
         Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (
@@ -163,14 +165,41 @@ def home(page_num):
             x.append(s.quantity)
             y.append(d.author.author_first_name + ' ' + d.author.author_last_name)
         return render_template('homepage1.html', page_num=page_num, book=book, current_user=current_user, form=form, x=x, y=y, count=count)
-    book = WrittenByAssociation.query.join(Author).paginate(page_num, 8)
-    x = []
-    y = []
-    for bok in book.items:
-        s = ContainsAsscociation.query.filter_by(book_id=bok.books.book_id).first()
-        x.append(s.quantity)
-        y.append(s.availability)
-    return render_template('homepage.html', page_num=page_num, book=book, current_user=current_user, form=form, x=x, y=y, count=count)
+    top = BookRateTotal.query.join(Books).order_by(BookRateTotal.totalRate.desc()).limit(4).all()
+    authors = []
+    bookqnt = []
+    ids = []
+    book = []
+    edition = []
+    most = Books.query.order_by(Books.borrowcount.desc()).limit(4).all()
+    mostauth = []
+    mostqnt = []
+    for bok in top:
+        s = WrittenByAssociation.query.filter_by(book_id=bok.bookRated).first()
+        ss = Books.query.filter_by(book_id=bok.bookRated).first()
+        qnty = ContainsAsscociation.query.filter_by(book_id=bok.bookRated).all()
+        quantity = 0
+        for q in qnty:
+            quantity = quantity + q.quantity
+        bookqnt.append(quantity)
+        book.append(ss.title)
+        edition.append(ss.edition)
+        ids.append(ss.book_id)
+        author = Author.query.filter_by(author_id=s.author_id).first()
+        authors.append(author.author_first_name + ' ' + author.author_last_name)
+
+    for mst in most:
+        s = WrittenByAssociation.query.filter_by(book_id=mst.book_id).first()
+        author = Author.query.filter_by(author_id=s.author_id).first()
+        mostauth.append(author.author_first_name + ' ' + author.author_last_name)
+        qnty = ContainsAsscociation.query.filter_by(book_id=mst.book_id).all()
+        quantity = 0
+        for q in qnty:
+            quantity = quantity + q.quantity
+        mostqnt.append(quantity)
+    return render_template('homepage.html', page_num=page_num, top=top, current_user=current_user, form=form, most=most,
+                           count=count, authors=authors, bookqnt=bookqnt, ids=ids, book=book, edition=edition,
+                           mostauth=mostauth, mostqnt=mostqnt)
 
 
 @app.route('/profile/<int:user_id>/', methods=['GET', 'POST'])
@@ -259,7 +288,7 @@ def bookshelf(user_id, page_num):
         ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
             BorrowsAssociation.seen == 0)) | (
             (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-            (BorrowsAssociation.seen == 0))).paginate(1, 8)
+            (BorrowsAssociation.seen == 0))).paginate(1, 6)
     count = 0
     for r in notSeen.items:
         count = count + 1
@@ -268,7 +297,7 @@ def bookshelf(user_id, page_num):
     if current_user.id == user_id:
         if booksearch.validate_on_submit():
             return redirect(url_for('bookshelfsearch', user_id=current_user.id, page_num=1, searchid=booksearch.search.data, count=count))
-        books = ContainsAsscociation.query.filter_by(shelf_id=user_id).paginate(page_num, 8)
+        books = ContainsAsscociation.query.filter_by(shelf_id=user_id).paginate(page_num, 6)
         x = []
         y = []
         for bok in books.items:
@@ -281,7 +310,7 @@ def bookshelf(user_id, page_num):
         if booksearch.validate_on_submit():
             if booksearch.validate_on_submit():
                 return redirect(url_for('bookshelfsearch', user_id=user_id, page_num=1, searchid=booksearch.search.data, count=count))
-        books = ContainsAsscociation.query.filter_by(shelf_id=user_id).paginate(page_num, 8)
+        books = ContainsAsscociation.query.filter_by(shelf_id=user_id).paginate(page_num, 6)
         x = []
         y = []
         for bok in books.items:
@@ -299,7 +328,7 @@ def bookshelfsearch(user_id, page_num, searchid):
         ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
             BorrowsAssociation.seen == 0)) | (
             (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-            (BorrowsAssociation.seen == 0))).paginate(1, 8)
+            (BorrowsAssociation.seen == 0))).paginate(1, 6)
     count = 0
     for r in notSeen.items:
         count = count + 1
@@ -310,7 +339,7 @@ def bookshelfsearch(user_id, page_num, searchid):
         books = ContainsAsscociation.query.join(Books).filter(
             (ContainsAsscociation.shelf_id == current_user.id) & ((Books.title.like(search1)) | (
              Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (
-             Books.isbn.like(search1)))).paginate(page_num, 8)
+             Books.isbn.like(search1)))).paginate(page_num, 6)
         x = []
         y = []
         for p in books.items:
@@ -325,7 +354,7 @@ def bookshelfsearch(user_id, page_num, searchid):
         books = ContainsAsscociation.query.join(Books).filter(
             (ContainsAsscociation.shelf_id == user_id) & ((Books.title.like(search1)) | (
                 Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (
-                                                                      Books.isbn.like(search1)))).paginate(page_num, 8)
+                                                                      Books.isbn.like(search1)))).paginate(page_num, 6)
         x = []
         y = []
         for p in books.items:
@@ -465,8 +494,7 @@ def notif():
     pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) &
                                            (BorrowsAssociation.shelf_id == current_user.id) |
                                            ((BorrowsAssociation.status == 2) &
-                                           (BorrowsAssociation.user_id == current_user.id))
-                                           ).paginate(1, 8)
+                                           (BorrowsAssociation.user_id == current_user.id))).order_by(BorrowsAssociation.date.desc()).paginate(1, 8)
 
     x = []
     y = []
@@ -488,11 +516,18 @@ def notif():
             (BorrowsAssociation.user_id == borrowerId) & (BorrowsAssociation.shelf_id == borrowedId) & (
             BorrowsAssociation.bookid == book)).first()
 
+        avail = ContainsAsscociation.query.filter(ContainsAsscociation.book_id == book).first()
+
         if app == "YES":
             approved.seen = 0
             approved.status = 2
             db.session.commit()
-            delbook(book)
+            availDelete = int(avail.quantity)
+            avail.quantity = availDelete - 1
+            db.session.commit()
+            if avail.quantity <= 0:
+                avail.availability = 'NO'
+                db.session.commit()
         else:
             approved.seen = 1
             approved.status = 0
@@ -502,7 +537,7 @@ def notif():
                                                (BorrowsAssociation.shelf_id == current_user.id) |
                                                (BorrowsAssociation.status == 2) &
                                                (BorrowsAssociation.user_id == current_user.id)
-                                               ).paginate(1, 8)
+                                               ).order_by(BorrowsAssociation.date.desc()).paginate(1, 8)
         x = []
         for p in pags.items:
             book = Books.query.filter(Books.book_id == p.bookid).first()
@@ -536,6 +571,7 @@ def addbook():
     for r in notSeen.items:
         count = count + 1
     form = Addbook()
+    form1 = Search()
     if form.validate_on_submit():
         titleNew = form.title.data
         yearNew = form.year.data
@@ -596,7 +632,7 @@ def addbook():
                 bookquantity.quantity = int(curQuant + 1)
                 db.session.commit()
             return redirect(url_for('bookshelf', user_id=current_user.id, page_num=1, count=count))
-    return render_template('addbook.html', form=form, count=count)
+    return render_template('addbook.html', form=form, form1=form1, count=count, current_user=current_user)
 
 
 @app.route('/rateBook/<int:book_id>', methods=['POST', 'GET'])
@@ -687,6 +723,9 @@ def borrow(owner_id, book_id):
             BorrowsAssociation.bookid == bookid)).first()
     quant = int(pags.quantity)
     if bookBorrow is None:
+        borrows = Books.query.filter_by(book_id=book_id).first()
+        t = int(borrows.borrowcount) + 1
+        borrows.borrowcount = t
         borrowBook = BorrowsAssociation(current_user.id, otheruserId, 1, bookid, 0)
         db.session.add(borrowBook)
         db.session.commit()
@@ -695,6 +734,20 @@ def borrow(owner_id, book_id):
         return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
     elif quant == 0:
         return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
+
+
+@app.route('/home/top_rated', defaults={'page_num': 1}, methods=['GET', 'POST'])
+@app.route('/home/top_rated/<int:page_num>', methods=['GET', 'POST'])
+@login_required
+def topbooks(page_num):
+    pass
+
+
+@app.route('/home/most_borrowed', defaults={'page_num': 1}, methods=['GET', 'POST'])
+@app.route('/home/most_borrowed<int:page_num>', methods=['GET', 'POST'])
+@login_required
+def mostborrow(page_num):
+    pass
 
 
 @app.route('/logout')
