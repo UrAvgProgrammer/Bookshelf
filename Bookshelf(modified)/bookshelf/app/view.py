@@ -1,6 +1,6 @@
 from app import app, User, Search, LoginForm, RegistrationForm, db, Author, Bookshelf, BookRateAssociation, Books, \
     WrittenByAssociation, ContainsAsscociation, Addbook, Publisher, BookRateTotal, BorrowsAssociation, EditProfile, \
-    UserRateTotal, UserRateAssociation, datetime
+    UserRateTotal, UserRateAssociation, datetime, ActLogs
 from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from werkzeug.security import check_password_hash
@@ -700,6 +700,9 @@ def notif():
             approved.status = 2
             approved.otherUserReturn = 0
             db.session.commit()
+            log = ActLogs(approved.user_id,current_user.id,2,approved.bookid)
+            db.session.add(log)
+            db.session.commit()
             delbook(book)
         else:
             approved.seen = 1
@@ -981,6 +984,9 @@ def returnBook(owner_id,book_id):
             quant.quantity = finalTot
             quant.availability = 'YES'
             db.session.commit()
+            log = ActLogs(bookBorrow.user_id,current_user.id,4,bookBorrow.bookid)
+            db.session.add(log)
+            db.session.commit()
 
         else:
             bookBorrow.status= 5
@@ -1018,6 +1024,9 @@ def returnBookDiff(owner_id,book_id):
             quant.quantity = finalTot
             quant.availability = 'YES'
             db.session.commit()
+            log = ActLogs(bookBorrow.user_id,current_user.id,4,bookBorrow.bookid)
+            db.session.add(log)
+            db.session.commit()
 
         else:
             bookBorrow.status= 5
@@ -1025,6 +1034,66 @@ def returnBookDiff(owner_id,book_id):
             db.session.commit()
 
     return redirect(url_for('bookshelf',user_id=owner_id,page_num=1))
+
+
+@app.route('/actLogs', methods=['GET', 'POST'])
+@login_required
+def actLogs():
+    form = Search()
+    notSeen = BorrowsAssociation.query.filter(
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
+
+    count = 0
+    for r in notSeen.items:
+        count = count + 1
+
+    count = count+countOwner+countBorrower
+
+    pags = ActLogs.query.filter((ActLogs.shelf_id==current_user.id) | (ActLogs.user_id==current_user.id)).order_by(desc(ActLogs.logs)).paginate(1,8)
+
+    l = []
+    m = []
+    n = []
+    o = []
+    p = []
+    v = []
+    for q in pags.items:
+        book = Books.query.filter(Books.book_id == q.bookid).first()
+        t = User.query.filter(User.id == q.user_id).first()
+        s = User.query.filter(User.id == q.shelf_id).first()
+        l.append(book.title)
+        n.append(t.id)
+        m.append(t.first_name + ' ' + t.last_name)
+        o.append(t.username)
+        p.append(s.first_name + ' ' + s.last_name)
+        v.append(s.id)
+
+
+
+    return render_template('activitylogs.html', count=count,pags=pags,l=l,m=m,n=n,o=o,p=p,current_user=current_user,form=form)
+
+
 
 
 @app.route('/logout')

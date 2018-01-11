@@ -220,15 +220,18 @@ class UserRateTotal(db.Model):
         self.userRatee = userRatee
         self.userRater = userRater
         self.totalRate = totalRate
-    '''
+
 class ActLogs(db.Model):
     __tablename__ = 'actlogs'
-    ownerId = db.Column(db.Integer, primary_key=True)
-    otherId = db.Column(db.Integer)
-    borrowing = db.Column(db.TEXT)
-    returning = db.Column(db.TEXT)
+    logs = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf.bookshelf_id'))
+    date = db.Column(db.DateTime, default=datetime.datetime.today)
+    status = db.Column(db.Integer)
+    bookid = db.Column(db.Integer)
+    def __init__(self, user_id='', shelf_id='', status='', bookid=''):
+        self.user_id = user_id
+        self.shelf_id = shelf_id
+        self.status = status
+        self.bookid = bookid
 
-    def __init__(self, borrowing='', returning=''):
-        self.borrowing = borrowing
-        self.returning = returning
-    '''

@@ -2,13 +2,13 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}
-    Profile
+Notification
 {% endblock %}
 
 
 {% block body %}
-    <!-- Nav Bar -->
-    <nav class="navbar navbar-default navbar-fixed-top">
+   <!-- Nav Bar -->
+<nav class="navbar navbar-default navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -40,35 +40,33 @@
       </form>
         </div>
       </div>
-    </nav> <!-- end of nav bar -->
-    <!-- side bar -->
-     <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <div class="col-xs-6 col-sm-3 placeholder">
-                <img class ="img-circle" src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Profile Picture">
-            </div>
-          </ul>
-          <ul class="nav nav-sidebar">
-              <li class="active"><a href="/profile/{{ current_user.id }}">Profile<span class="sr-only">(current)</span></a></li>
-            <li><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf</a></li>
-            <li><a href="/profile/rate_and_comment/{{ current_user.id }}">Comments and rating</a></li>
-          </ul>
-        </div>
-          <!-- Contetnt -->
-          <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">My profile</h1>
-              <div class="col-lg-6 bg-success" style="text-align: center; padding: 2%">
-                  <h3>First name: {{ current_user.first_name }}</h3>
-                  <h3>Last name: {{ current_user.last_name }}</h3>
-                  <h3>Sex: {{ current_user.sex }}</h3>
-                  <h3>Contact Number: {{ current_user.contact_number }}</h3>
-                  <h3>Birthdate: {{ current_user.birth_date }}</h3>
-                  <a href="/profile/edit/{{ current_user.id }}" class="btn btn-primary">Update</a>
-                  <a href="/actLogs" class="btn btn-success">Activity Logs</a>
-              </div>
-          </div>
-        </div>
-</div><!-- end of side bar -->
+</nav> <!-- end of nav bar -->
+    <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-1 main">
+          <h1 class="page-header">Activity Logs</h1>
+        <p>
+
+            {%for pag in pags.items %}
+                {% if pag.status == 2 and pag.user_id == current_user.id %}
+                    You Borrowed the book {{l[loop.index-1]}} from
+                    <a href="/profile/{{p[loop.index-1]}}"> <h3>{{p[loop.index-1]}} </h3>
+                    </a><br>
+
+                {% elif pag.status == 2 and pag.shelf_id == current_user.id %}
+                    You gave permission to the user below to borrow the book {{l[loop.index-1]}}
+                    <a href="/profile/{{m[loop.index-1]}}"> <h3>{{m[loop.index-1]}} </h3>
+                    </a><br>
+
+                {% elif pag.status == 4 and pag.shelf_id == current_user.id %}
+                    The user below returned the book {{l[loop.index-1]}}
+                    <a href="/profile/{{m[loop.index-1]}}"> <h3>{{m[loop.index-1]}} </h3>
+                    </a><br>
+                {% elif pag.status == 4 and pag.user_id == current_user.id %}
+                    You returned the book {{l[loop.index-1]}} to
+                    <a href="/profile/{{p[loop.index-1]}}"> <h3>{{p[loop.index-1]}} </h3>
+                    </a><br>
+                {% endif %}
+            {% endfor %}
+        </p>
+    </div>
 {% endblock %}
+
