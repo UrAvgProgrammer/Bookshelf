@@ -76,7 +76,7 @@ Notification
             {% endfor %}
 
             {%for pag in pags.items %}
-                {% if pag.status == 2 %}
+                {% if pag.status == 2 or pag.status == 3 or pag.status == 4 or pag.status == 5   %}
                     <a href="/profile/{{i[loop.index-1]}}"> <h3>{{y[loop.index-1]}} (Username: {{b[loop.index-1]}})</h3>
                     </a> accepted your request.
 

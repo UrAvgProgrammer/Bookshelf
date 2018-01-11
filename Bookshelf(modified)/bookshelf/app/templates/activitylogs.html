@@ -47,22 +47,22 @@ Notification
 
             {%for pag in pags.items %}
                 {% if pag.status == 2 and pag.user_id == current_user.id %}
-                    You Borrowed the book {{l[loop.index-1]}} from
-                    <a href="/profile/{{p[loop.index-1]}}"> <h3>{{p[loop.index-1]}} </h3>
-                    </a><br>
+                    (Date: {{pag.date}})
+                    You Borrowed the book {{l[loop.index-1]}} from <a href="/profile/{{p[loop.index-1]}}"> <h4>{{p[loop.index-1]}} </h4></a>
+                    <br>
 
                 {% elif pag.status == 2 and pag.shelf_id == current_user.id %}
-                    You gave permission to the user below to borrow the book {{l[loop.index-1]}}
-                    <a href="/profile/{{m[loop.index-1]}}"> <h3>{{m[loop.index-1]}} </h3>
+                    (Date: {{pag.date}})
+                    You accepted the book {{l[loop.index-1]}} to be borrowed by<a href="/profile/{{m[loop.index-1]}}"> <h4>{{m[loop.index-1]}} </h4>
                     </a><br>
 
                 {% elif pag.status == 4 and pag.shelf_id == current_user.id %}
-                    The user below returned the book {{l[loop.index-1]}}
-                    <a href="/profile/{{m[loop.index-1]}}"> <h3>{{m[loop.index-1]}} </h3>
+                    (Date: {{pag.date}})
+                    The book {{l[loop.index-1]}} was returned by <a href="/profile/{{m[loop.index-1]}}"> <h4>{{m[loop.index-1]}} </h4>
                     </a><br>
                 {% elif pag.status == 4 and pag.user_id == current_user.id %}
-                    You returned the book {{l[loop.index-1]}} to
-                    <a href="/profile/{{p[loop.index-1]}}"> <h3>{{p[loop.index-1]}} </h3>
+                    (Date: {{pag.date}})
+                    You returned the book {{l[loop.index-1]}} to  <a href="/profile/{{p[loop.index-1]}}"> <h4>{{p[loop.index-1]}} </h4>
                     </a><br>
                 {% endif %}
             {% endfor %}

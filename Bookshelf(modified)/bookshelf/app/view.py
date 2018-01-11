@@ -648,7 +648,7 @@ def notif():
 
     pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) &
                                            (BorrowsAssociation.shelf_id == current_user.id) |
-                                           ((BorrowsAssociation.status == 2) &
+                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status == 3) | (BorrowsAssociation.status == 4) | (BorrowsAssociation.status == 5))&
                                            (BorrowsAssociation.user_id == current_user.id))
                                            ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
 
@@ -711,7 +711,7 @@ def notif():
 
         pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) &
                                                (BorrowsAssociation.shelf_id == current_user.id) |
-                                               (BorrowsAssociation.status == 2) &
+                                               ((BorrowsAssociation.status == 2) | (BorrowsAssociation.status == 3) | (BorrowsAssociation.status == 4) | (BorrowsAssociation.status == 5)) &
                                                (BorrowsAssociation.user_id == current_user.id)
                                                ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
 
