@@ -43,11 +43,11 @@ Notification
             {%for pag2 in pags2.items %}
                 {% if (pag2.shelf_id == curId and (pag2.curUserReturn == 0 or pag2.otherUserReturn == 1 )and pag2.status==2) %}
                     <a href="/profile/{{n[loop.index-1]}}"> <h3>{{m[loop.index-1]}} (Username: {{o[loop.index-1]}})</h3>
-                    </a> has the {{l[loop.index-1]}} book due today. {{pag2.returnDate}}
+                    </a> has the {{l[loop.index-1]}} book <font color="red">due today</font>. {{pag2.returnDate}}
                 {% elif pag2.otherUserReturn == 1 and pag2.user_id == curId and pag2.status==2 %}
                 <form action="{{ url_for('returnBook',owner_id=pag2.shelf_id ,book_id=pag2.bookid) }}" method="POST">
                     <a href="/profile/{{pag2.shelf_id}}"> <h3>{{pag2.bookshelf.owner.first_name}} {{pag2.bookshelf.owner.last_name}} (Username: {{pag2.bookshelf.owner.username}}) </h3>
-                    </a> needs the {{l[loop.index-1]}} book back today. {{pag2.returnDate}}
+                    </a> needs the {{l[loop.index-1]}} <font color="red">book back today</font>. {{pag2.returnDate}}
                     <input type="hidden" name="borrower" value="{{ pag2.user_id }}">
                     <input type="hidden" name="borrowed" value="{{ pag2.shelf_id }}">
                     <input type="hidden" name="book" value="{{ pag2.bookid }}">
@@ -66,7 +66,7 @@ Notification
                 {% elif pag2.otherUserReturn == 1 and pag2.user_id == curId and pag2.status==5 %}
                 <form action="{{ url_for('returnBook',owner_id=pag2.shelf_id ,book_id=pag2.bookid) }}" method="POST">
                     <a href="/profile/{{pag2.shelf_id}}"> <h3>{{pag2.bookshelf.owner.first_name}} {{pag2.bookshelf.owner.last_name}} (Username: {{pag2.bookshelf.owner.username}}) </h3>
-                    </a>You did not return the {{l[loop.index-1]}} book back on {{pag2.returnDate}}
+                    </a><font color="red">Book Due</font>. You did not return the {{l[loop.index-1]}} book back on {{pag2.returnDate}}
                     <input type="hidden" name="borrower" value="{{ pag2.user_id }}">
                     <input type="hidden" name="borrowed" value="{{ pag2.shelf_id }}">
                     <input type="hidden" name="book" value="{{ pag2.bookid }}">

@@ -48,7 +48,8 @@ Welcome to Bookshelf
                       <div class="square" style="margin-top: .5%;">
                       <h2>Rate and Comments</h2>
                           {% for com in comment %}
-                              {{yx[loop.index-1]}}: {{ com.rating }} <span class="glyphicon-star-empty"> {{ com.comment }}</span><br>
+                              {{yx[loop.index-1]}}: {% for com in range(com.rating) %}
+                          <span class="glyphicon glyphicon-star"></span> {% endfor %} {{ com.comment }}<br>
                           {% endfor %}
                       </div>
                   </div>

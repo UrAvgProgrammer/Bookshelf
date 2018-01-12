@@ -53,6 +53,7 @@
             <li><a href="/profile/{{ current_user.id }}">Profile</a></li>
             <li class="active"><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf<span class="sr-only">(current)</span></a></li>
             <li><a href="/profile/rate_and_comment/{{ current_user.id }}">Comments and rating</a></li>
+            <li><a href="/actLogs">Activity Logs</a></li>
           </ul>
         </div>
           <!-- Contetnt -->
@@ -90,7 +91,11 @@
                                 <span class="text-muted">Type: {{ book.containsbooks.types }}</span><br>
                                 <span class="text-muted">Edition: {{ book.containsbooks.edition }}</span><br>
                                 <span class="text-muted">Quantity: {{ book.quantity }}</span><br>
-                                <a href="/profile/bookshelf/delete/{{ book.containsbooks.book_id }}" class="btn btn-danger" role="button">Delete</a>
+                                {% if book.quantity != 0 %}
+                                <a href="/profile/bookshelf/delete/{{ book.containsbooks.book_id }}" class="btn btn-danger" role="button" >Delete</a>
+                                {% elif book.quantity == 0 %}
+                                    <button type="button" class="btn btn-danger" disabled>Delete</button>
+                                {% endif %}
                             </div>
                         {% endfor %}
                     </div>

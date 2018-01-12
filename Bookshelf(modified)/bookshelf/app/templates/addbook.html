@@ -22,7 +22,7 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
             <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-            <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> {{ current_user.first_name }}</a></li>
+            <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
             <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
             {% if count %}
                 <span class="badge pull-right">{{ count }}</span>

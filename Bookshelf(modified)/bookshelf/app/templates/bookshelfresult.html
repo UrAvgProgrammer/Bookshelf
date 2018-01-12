@@ -52,7 +52,8 @@
           <ul class="nav nav-sidebar">
             <li><a href="/profile/{{ current_user.id }}">Profile</a></li>
             <li class="active"><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf<span class="sr-only">(current)</span></a></li>
-            <li><a href="/profile/rate_and_comment">Comments and rating</a></li>
+            <li><a href="/profile/rate_and_comment/1">Comments and rating</a></li>
+            <li><a href="/actLogs">Activity Logs</a></li>
           </ul>
         </div>
           <!-- Contetnt -->
@@ -88,7 +89,6 @@
                                 <span class="text-muted">Type: {{ book.containsbooks.types }}</span><br>
                                 <span class="text-muted">Year Published: {{ book.containsbooks.year_published }}</span><br>
                                 <span class="text-muted">Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</span><br>
-                                <a href="#" class="btn btn-success" role="button">Returned</a>
                                 <a href="/profile/bookshelf/delete/{{ book.containsbooks.book_id }}" class="btn btn-danger" role="button">Delete</a>
                             </div>
                         {% endfor %}

@@ -2,13 +2,12 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 {% block title %}
-    Profile
+    Bookshelf
 {% endblock %}
 
 
 {% block body %}
-    <!-- Nav Bar -->
-    <nav class="navbar navbar-default navbar-fixed-top">
+  <nav class="navbar navbar-default navbar-fixed-top">
       <div class="container-fluid">
         <div class="navbar-header">
           <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -40,35 +39,38 @@
       </form>
         </div>
       </div>
-    </nav> <!-- end of nav bar -->
-    <!-- side bar -->
-     <div class="container-fluid">
-      <div class="row">
-        <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <div class="col-xs-6 col-sm-3 placeholder">
-                <img class ="img-circle" src="{{ url_for('static', filename='image/default.jpg') }}" width="200" height="200" alt="Profile Picture">
-            </div>
-          </ul>
-          <ul class="nav nav-sidebar">
-              <li class="active"><a href="/profile/{{ current_user.id }}">Profile<span class="sr-only">(current)</span></a></li>
-            <li><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf</a></li>
-            <li><a href="/profile/rate_and_comment/{{ current_user.id }}">Comments and rating</a></li>
-            <li><a href="/actLogs">Activity Logs</a></li>
-          </ul>
-        </div>
-          <!-- Contetnt -->
-          <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">My profile</h1>
-              <div class="col-lg-6 bg-success" style="text-align: center; padding: 2%">
-                  <h3>First name: {{ current_user.first_name }}</h3>
-                  <h3>Last name: {{ current_user.last_name }}</h3>
-                  <h3>Sex: {{ current_user.sex }}</h3>
-                  <h3>Contact Number: {{ current_user.contact_number }}</h3>
-                  <h3>Birthdate: {{ current_user.birth_date }}</h3>
-                  <a href="/profile/edit/{{ current_user.id }}" class="btn btn-primary">Update</a>
-              </div>
+    </nav>
+
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-1 main">
+<h1 class="page-header">Most Borrowed</h1>
+         <div class="row placeholders">
+               <div class="row">
+              {% for bookss in most.items %}
+               <div class="col-xs-6 col-sm-3">
+                <div class="square">
+                    <img class ="img-square" src="/static/image/book.png" width="150" height="150" alt="Generic placeholder thumbnail">
+                    <a href="{{ url_for('indibook', book_id=bookss.book_id, page_num=1) }}" ><h3>{{bookss.title}}</h3></a>
+                    <span class="text-muted">Author: {{mostauth[loop.index-1]}}</span><br>
+                    <span class="text-muted">Edition: {{bookss.edition}}</span><br>
+                    <span class="text-muted">Quantity: {{mostqnt[loop.index-1]}}</span><br>
+                    <span class="text-muted">Borrowers: {{bookss.borrowcount}}</span>
+                </div>
+                </div>
+              {% endfor %}
           </div>
         </div>
-</div><!-- end of side bar -->
+    <div class="footer" style="text-align: center">
+              {% for page in most.iter_pages(left_edge=3,right_edge=3,left_current=3,right_current=3) %}
+                    {% if page %}
+                         <a href="{{ url_for('mostborrow', page_num=page) }}">{{ page }}</a>
+                    {% else %}
+                        ....
+                    {% endif %}
+              {% endfor %}
+</div>
+</div>
+
+{% block scripts %}
+    <script  src="{{ url_for('static', filename='js/index.js') }}"></script>
+{% endblock %}
 {% endblock %}
