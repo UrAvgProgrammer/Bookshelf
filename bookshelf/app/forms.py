@@ -43,7 +43,7 @@ class EditProfile(FlaskForm):
 
 
 class Addbook(FlaskForm):
-    title = StringField('Title', validators=[Length(min=1, max=40)])
+    title = StringField('Title', validators=[Length(min=1, max=100)])
     year = StringField('Year Published', validators=[Length(min=1, max=10)])
     author_firstname = StringField('Author\'s first name', validators=[Length(min=1, max=40)])
     author_lastname = StringField('Author\'s last name', validators=[Length(min=1, max=40)])

@@ -33,7 +33,7 @@
             <div class="form-group">
             <span class="glyphicon glyphicon-search"></span>
                 {{ form.csrf_token }}
-                {{ wtf.form_field(form.search) }}
+                {{ wtf.form_field(form.search, **{'placeholder':'Search a book ...'}) }}
             </div>
         <button type="submit" class="btn btn-default" value="submit">Submit</button>
       </form>
@@ -52,7 +52,8 @@
           <ul class="nav nav-sidebar">
             <li><a href="/profile/{{ current_user.id }}">Profile</a></li>
             <li class="active"><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf<span class="sr-only">(current)</span></a></li>
-            <li><a href="/profile/rate_and_comment">Comments and rating</a></li>
+            <li><a href="/profile/rate_and_comment/1">Comments and rating</a></li>
+            <li><a href="/actLogs">Activity Logs</a></li>
           </ul>
         </div>
           <!-- Contetnt -->
@@ -68,17 +69,21 @@
               {% else %}
                   <div class="page-header">
                    <ul class="list-inline">
-                      <li><h1>Bookshelf</h1></li>
+                      <hr><li><h1>Bookshelf</h1></li>
                        <li>
-                           <form action="{{ url_for('bookshelf', user_id=current_user.id, page_num=1) }}" method ='post'>
-                               {{ booksearch.csrf_token }}
-                               {{ wtf.form_field(booksearch.search) }}
-                           </form>
                        </li>
-                      <li><a href="/profile/bookshelf/add" class="btn btn-link" role="button">Add book</a></li>
+                      <li>
                    </ul>
                   </div>
           <div class="row placeholders">
+          <form action="{{ url_for('bookshelf', user_id=current_user.id, page_num=1) }}" method ='post' class="navbar-form navbar-right"    >
+                               {{ booksearch.csrf_token }}
+                               {{ wtf.form_field(booksearch.search, **{'placeholder':'Search a book ...'}) }}
+          </form>
+          <a href="/profile/bookshelf/add" class="btn btn-default" role="button" style="float: left;">Add book</a></li>
+          <br>
+          <br>
+          <br>
                   <div class="row">
                         {% for book in books.items %}
                            <div class="col-sm-4 bg-info" style="text-align: center;padding-top: 2%; padding-bottom: 2%">
@@ -88,9 +93,12 @@
                                 <span class="text-muted">Type: {{ book.containsbooks.types }}</span><br>
                                 <span class="text-muted">Year Published: {{ book.containsbooks.year_published }}</span><br>
                                 <span class="text-muted">Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</span><br>
-                                <a href="#" class="btn btn-success" role="button">Return</a>
-                                <a href="/profile/bookshelf/delete/{{ book.containsbooks.book_id }}" class="btn btn-danger" role="button">Delete</a>
-                            </div>
+                                {% if book.quantity != 0 %}
+                                <a href="/profile/bookshelf/delete/{{ book.containsbooks.book_id }}" class="btn btn-danger" role="button" >Delete</a>
+                                {% elif book.quantity == 0 %}
+                                    <button type="button" class="btn btn-danger" disabled>Delete</button>
+                                {% endif %}
+                           </div>
                         {% endfor %}
                     </div>
             <div class="footer">

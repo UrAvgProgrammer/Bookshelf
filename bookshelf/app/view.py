@@ -1,9 +1,11 @@
 from app import app, User, Search, LoginForm, RegistrationForm, db, Author, Bookshelf, BookRateAssociation, Books, \
     WrittenByAssociation, ContainsAsscociation, Addbook, Publisher, BookRateTotal, BorrowsAssociation, EditProfile, \
-    UserRateTotal, UserRateAssociation
-from flask import render_template, redirect, url_for, flash, request
+    UserRateTotal, UserRateAssociation, datetime, ActLogs
+from flask import render_template, redirect, url_for, flash, request, session
 from flask_login import LoginManager, current_user, login_user, login_required, logout_user
 from werkzeug.security import check_password_hash
+from sqlalchemy import desc
+
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -54,9 +56,7 @@ def tosearch(page_num, item):
             s = ContainsAsscociation.query.filter_by(book_id=bok.book_id).first()
             d = WrittenByAssociation.query.filter_by(book_id=s.book_id).first()
             x.append(s.quantity)
-            y.append(d.author.author_first_name + ' ' + d.author
-
-                     .author_last_name)
+            y.append(d.author.author_first_name + ' ' + d.author.author_last_name)
         return render_template('indexres.html', book=book, page_num=page_num, item=item, form=form, x=x, y=y)
     book = ContainsAsscociation.query.join(Books).filter(((Books.title.like(search1)) | (
         Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (
@@ -143,13 +143,34 @@ def signup():
 @login_required
 def home(page_num):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0)) | (
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
         (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0))).paginate(1, 8)
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
 
     count = 0
     for r in notSeen.items:
         count = count + 1
+
+    count = count+countOwner+countBorrower
 
     form = Search()
     if form.validate_on_submit():
@@ -171,9 +192,13 @@ def home(page_num):
     ids = []
     book = []
     edition = []
+    totrate = []
     most = Books.query.order_by(Books.borrowcount.desc()).limit(4).all()
     mostauth = []
     mostqnt = []
+    most1 = Books.query.order_by(Books.book_id.desc()).paginate(page_num, 8)
+    mostauth1 = []
+    mostqnt1 = []
     for bok in top:
         s = WrittenByAssociation.query.filter_by(book_id=bok.bookRated).first()
         ss = Books.query.filter_by(book_id=bok.bookRated).first()
@@ -197,22 +222,53 @@ def home(page_num):
         for q in qnty:
             quantity = quantity + q.quantity
         mostqnt.append(quantity)
+
+    for mst in most1.items:
+        s = WrittenByAssociation.query.filter_by(book_id=mst.book_id).first()
+        author = Author.query.filter_by(author_id=s.author_id).first()
+        mostauth1.append(author.author_first_name + ' ' + author.author_last_name)
+        qnty = ContainsAsscociation.query.filter_by(book_id=mst.book_id).all()
+        quantity = 0
+        for q in qnty:
+            quantity = quantity + q.quantity
+        mostqnt1.append(quantity)
     return render_template('homepage.html', page_num=page_num, top=top, current_user=current_user, form=form, most=most,
                            count=count, authors=authors, bookqnt=bookqnt, ids=ids, book=book, edition=edition,
-                           mostauth=mostauth, mostqnt=mostqnt)
+                           mostauth=mostauth, mostqnt=mostqnt, most1=most1, mostauth1=mostauth1, mostqnt1=mostqnt1)
 
 
 @app.route('/profile/<int:user_id>/', methods=['GET', 'POST'])
 @login_required
 def profile(user_id):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
-            BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-            (BorrowsAssociation.seen == 0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
+
     count = 0
     for r in notSeen.items:
         count = count + 1
+
+    count = count+countOwner+countBorrower
     form = Search()
     if user_id == current_user.id:
         return render_template('profile.html', form=form, count=count)
@@ -225,13 +281,34 @@ def profile(user_id):
 @login_required
 def editprof(user_id):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
-            BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-            (BorrowsAssociation.seen == 0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
+
     count = 0
     for r in notSeen.items:
         count = count + 1
+
+    count = count+countOwner+countBorrower
     form = Search()
     form1 = EditProfile()
     info = User.query.filter_by(id=user_id).first()
@@ -250,13 +327,34 @@ def editprof(user_id):
 @login_required
 def indibook(book_id, page_num):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
-            BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-            (BorrowsAssociation.seen == 0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
+
     count = 0
     for r in notSeen.items:
         count = count + 1
+
+    count = count+countOwner+countBorrower
     form = Search()
     book = ContainsAsscociation.query.filter_by(book_id=book_id).paginate(page_num, 12)
     rate = BookRateTotal.query.filter_by(bookRated=book_id).first()
@@ -268,6 +366,7 @@ def indibook(book_id, page_num):
 
     t = ContainsAsscociation.query.filter_by(book_id=book_id).first()
     title = t.containsbooks.title
+    id = t.containsbooks.book_id
     x = []
     y = []
     z = []
@@ -276,22 +375,42 @@ def indibook(book_id, page_num):
         x.append(s.first_name)
         y.append(s.last_name)
         z.append(s.id)
-
-    return render_template('individualbook.html', yx=yx, title=title, book=book, comment=comment, rate=rate, form=form,
-                           book_id=book_id, x=x, y=y, z=z, count=count)
+    return render_template('individualbook.html', yx=yx, id=id, title=title, book=book, comment=comment, rate=rate, form=form,
+                           book_id=book_id, x=x, y=y, z=z, count=count, current_user=current_user)
 
 
 @app.route('/profile/bookshelf/<int:user_id>/<int:page_num>', methods=['GET', 'POST'])
 @login_required
 def bookshelf(user_id, page_num):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
-            BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-            (BorrowsAssociation.seen == 0))).paginate(1, 6)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
+
     count = 0
     for r in notSeen.items:
         count = count + 1
+
+    count = count+countOwner+countBorrower
     form = Search()
     booksearch = Search()
     if current_user.id == user_id:
@@ -307,31 +426,60 @@ def bookshelf(user_id, page_num):
             y.append(author.author_last_name)
         return render_template('bookshelf.html', current_user=current_user, form=form, booksearch=booksearch, books=books, x=x, y=y, count=count)
     else:
+
         if booksearch.validate_on_submit():
             if booksearch.validate_on_submit():
                 return redirect(url_for('bookshelfsearch', user_id=user_id, page_num=1, searchid=booksearch.search.data, count=count))
         books = ContainsAsscociation.query.filter_by(shelf_id=user_id).paginate(page_num, 6)
         x = []
         y = []
+        z = []
         for bok in books.items:
             s = WrittenByAssociation.query.filter_by(book_id=bok.book_id).first()
             author = Author.query.filter_by(author_id=s.author_id).first()
+            bookId = BorrowsAssociation.query.filter_by(bookid = bok.book_id).first()
             x.append(author.author_first_name)
             y.append(author.author_last_name)
-        return render_template('diffbookshelf.html', current_user=current_user, form=form, books=books, booksearch=booksearch, user_id=user_id, x=x, y=y, count=count)
+            if bookId is not None:
+                z.append(bookId.user_id)
+            else:
+                z.append('None')
+
+        return render_template('diffbookshelf.html', current_user=current_user, form=form, books=books, booksearch=booksearch, user_id=user_id, x=x, y=y, count=count,z=z)
 
 
 @app.route('/profile/bookshelf/<int:user_id>/<int:page_num>/<string:searchid>', methods=['GET', 'POST'])
 @login_required
 def bookshelfsearch(user_id, page_num, searchid):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
-            BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-            (BorrowsAssociation.seen == 0))).paginate(1, 6)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
+
     count = 0
     for r in notSeen.items:
         count = count + 1
+
+    count = count+countOwner+countBorrower
     form = Search()
     booksearch = Search()
     if current_user.id == user_id:
@@ -357,26 +505,53 @@ def bookshelfsearch(user_id, page_num, searchid):
                                                                       Books.isbn.like(search1)))).paginate(page_num, 6)
         x = []
         y = []
-        for p in books.items:
-            s = WrittenByAssociation.query.filter_by(book_id=p.book_id).first()
+        z = []
+        for bok in books.items:
+            s = WrittenByAssociation.query.filter_by(book_id=bok.book_id).first()
             author = Author.query.filter_by(author_id=s.author_id).first()
+            bookId = BorrowsAssociation.query.filter_by(bookid = bok.book_id).first()
             x.append(author.author_first_name)
             y.append(author.author_last_name)
+            if bookId is not None:
+                z.append(bookId.user_id)
+            else:
+                z.append('None')
         return render_template('diffbookshelfresult.html', current_user=current_user, form=form, search1=search1,
-                               books=books, x=x, y=y, booksearch=booksearch, user_id=user_id, count=count)
+                               books=books, x=x, y=y, booksearch=booksearch, user_id=user_id, count=count,z=z)
 
 
 @app.route('/profile/rate_and_comment/<int:user_id>', methods=['GET', 'POST'])
 @login_required
 def ratencomm(user_id):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
-            BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-            (BorrowsAssociation.seen == 0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
+
     count = 0
     for r in notSeen.items:
         count = count + 1
+
+    count = count+countOwner+countBorrower
     form = Search()
     if user_id == current_user.id:
         rating = UserRateTotal.query.filter_by(userRatee=user_id).first()
@@ -482,29 +657,72 @@ def ratencomm(user_id):
 @app.route('/notification', methods=['GET', 'POST'])
 @login_required
 def notif():
+    now = datetime.datetime.now().date()
+
+    curId = current_user.id
     form = Search()
     unseen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2)))
+        (((BorrowsAssociation.shelf_id == current_user.id) & ((BorrowsAssociation.status == 1)|(BorrowsAssociation.status==3)))) | (
+            (BorrowsAssociation.user_id == current_user.id) & ((BorrowsAssociation.status == 2) | (BorrowsAssociation.status==5))) | ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 2) & (BorrowsAssociation.otherUserReturn==1)))
+
+    unseenOtherUserReturn = BorrowsAssociation.query.filter(
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.otherUserReturn==0) & (BorrowsAssociation.status == 2))
+
+    unseenCurUserReturn = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.curUserReturn==1) & (BorrowsAssociation.status==2))
 
     for q in unseen:
         q.seen = 1
         db.session.commit()
 
+    for r in unseenOtherUserReturn:
+        if (date(r.returnDate)[2]<=date(datetime.datetime.now())[2]) and (date(r.returnDate)[1]<=date(datetime.datetime.now())[1]):
+            r.otherUserReturn = 1
+            r.seen=0
+            db.session.commit()
+
+    for j in unseenCurUserReturn:
+        if (date(j.returnDate)[2]<=date(datetime.datetime.now())[2]) and (date(j.returnDate)[1]<=date(datetime.datetime.now())[1]):
+            j.curUserReturn = 0
+            db.session.commit()
+
+
+
     pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) &
                                            (BorrowsAssociation.shelf_id == current_user.id) |
-                                           ((BorrowsAssociation.status == 2) &
-                                           (BorrowsAssociation.user_id == current_user.id))).order_by(BorrowsAssociation.date.desc()).paginate(1, 8)
+                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status == 3) | (BorrowsAssociation.status == 4) | (BorrowsAssociation.status == 5))&
+                                           (BorrowsAssociation.user_id == current_user.id))
+                                           ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
+
+    pags2 = BorrowsAssociation.query.filter((((BorrowsAssociation.status == 1) | (BorrowsAssociation.otherUserReturn==1)) &
+                                           (BorrowsAssociation.shelf_id == current_user.id)) |
+                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status==5) )&
+                                           (BorrowsAssociation.user_id == current_user.id)) |
+                                            ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)) |
+                                            ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3)) ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
 
     x = []
     y = []
     i = []
+    b = []
     for p in pags.items:
         book = Books.query.filter(Books.book_id == p.bookid).first()
         s = User.query.filter(User.id == p.shelf_id).first()
         x.append(book.title)
         i.append(s.id)
         y.append(s.first_name + ' ' + s.last_name)
+        b.append(s.username)
+
+    l = []
+    m = []
+    n = []
+    o = []
+    for q in pags2.items:
+        book = Books.query.filter(Books.book_id == q.bookid).first()
+        t = User.query.filter(User.id == q.user_id).first()
+        l.append(book.title)
+        n.append(t.id)
+        m.append(t.first_name + ' ' + t.last_name)
+        o.append(t.username)
 
     if request.method == 'POST':
         app = request.form['app']
@@ -516,18 +734,17 @@ def notif():
             (BorrowsAssociation.user_id == borrowerId) & (BorrowsAssociation.shelf_id == borrowedId) & (
             BorrowsAssociation.bookid == book)).first()
 
-        avail = ContainsAsscociation.query.filter(ContainsAsscociation.book_id == book).first()
+
 
         if app == "YES":
             approved.seen = 0
             approved.status = 2
+            approved.otherUserReturn = 0
             db.session.commit()
-            availDelete = int(avail.quantity)
-            avail.quantity = availDelete - 1
+            log = ActLogs(approved.user_id,current_user.id,2,approved.bookid)
+            db.session.add(log)
             db.session.commit()
-            if avail.quantity <= 0:
-                avail.availability = 'NO'
-                db.session.commit()
+            delbook(book)
         else:
             approved.seen = 1
             approved.status = 0
@@ -535,16 +752,39 @@ def notif():
 
         pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) &
                                                (BorrowsAssociation.shelf_id == current_user.id) |
-                                               (BorrowsAssociation.status == 2) &
+                                               ((BorrowsAssociation.status == 2) | (BorrowsAssociation.status == 3) | (BorrowsAssociation.status == 4) | (BorrowsAssociation.status == 5)) &
                                                (BorrowsAssociation.user_id == current_user.id)
-                                               ).order_by(BorrowsAssociation.date.desc()).paginate(1, 8)
+                                               ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
+
+        pags2 = BorrowsAssociation.query.filter((((BorrowsAssociation.status == 1) | (BorrowsAssociation.otherUserReturn==1)) &
+                                           (BorrowsAssociation.shelf_id == current_user.id)) |
+                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status==5) )&
+                                           (BorrowsAssociation.user_id == current_user.id)) |
+                                            ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)) |
+                                            ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3)) ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
+
         x = []
         for p in pags.items:
             book = Books.query.filter(Books.book_id == p.bookid).first()
             x.append(book.title)
-        return render_template('notif.html', form=form, pags=pags, x=x, y=y, i=i)
-    return render_template('notif.html', form=form, pags=pags, x=x, y=y, i=i)
 
+        l = []
+        for q in pags2.items:
+            book = Books.query.filter(Books.book_id == q.bookid).first()
+            l.append(book.title)
+
+        return render_template('notif.html', form=form, pags=pags, x=x, y=y, i=i, now=now, curId = curId,l=l,m=m,n=n,pags2=pags2,o=o,b=b)
+    return render_template('notif.html', form=form, pags=pags, x=x, y=y, i=i,now=now, curId=curId,l=l,m=m,n=n,pags2=pags2,o=o,b=b)
+def date(now):
+    year, month, day = "", "", ""
+    for i in range(0,10):
+        if i<4:
+            year = year + str(now)[i]
+        elif i>=5 and i<7:
+            month = month + str(now)[i]
+        elif i>=8 and i<10:
+            day = day + str(now)[i]
+    return year, month, day
 
 @app.route('/profile/bookshelf/delete/<int:book_id>', methods=['GET', 'POST'])
 @login_required
@@ -563,13 +803,34 @@ def delbook(book_id):
 @login_required
 def addbook():
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (
-            BorrowsAssociation.seen == 0)) | (
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-            (BorrowsAssociation.seen == 0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
+
     count = 0
     for r in notSeen.items:
         count = count + 1
+
+    count = count+countOwner+countBorrower
     form = Addbook()
     form1 = Search()
     if form.validate_on_submit():
@@ -633,6 +894,7 @@ def addbook():
                 db.session.commit()
             return redirect(url_for('bookshelf', user_id=current_user.id, page_num=1, count=count))
     return render_template('addbook.html', form=form, form1=form1, count=count, current_user=current_user)
+
 
 
 @app.route('/rateBook/<int:book_id>', methods=['POST', 'GET'])
@@ -712,11 +974,12 @@ def ratebook(book_id):
     return redirect(url_for('indibook', book_id=book_id, page_num=1))
 
 
-@app.route('/borrow/<int:owner_id>/<int:book_id>')
+@app.route('/borrow/<int:owner_id>/<int:book_id>', methods = ['POST', 'GET'])
 @login_required
 def borrow(owner_id, book_id):
     otheruserId = owner_id
     bookid = book_id
+    date = request.form['returndate']
     pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
     bookBorrow = BorrowsAssociation.query.filter(
         (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (
@@ -726,7 +989,7 @@ def borrow(owner_id, book_id):
         borrows = Books.query.filter_by(book_id=book_id).first()
         t = int(borrows.borrowcount) + 1
         borrows.borrowcount = t
-        borrowBook = BorrowsAssociation(current_user.id, otheruserId, 1, bookid, 0)
+        borrowBook = BorrowsAssociation(current_user.id, otheruserId, 1, bookid, 0, 1,1,date)
         db.session.add(borrowBook)
         db.session.commit()
         return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
@@ -735,19 +998,215 @@ def borrow(owner_id, book_id):
     elif quant == 0:
         return redirect(url_for('bookshelf', user_id=owner_id, page_num=1))
 
+@app.route('/borrowInd/<int:owner_id>/<int:book_id>', methods = ['POST', 'GET'])
+@login_required
+def borrowInd(owner_id, book_id):
+    otheruserId = owner_id
+    bookid = book_id
+    date = request.form['returndate']
+    pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
+    bookBorrow = BorrowsAssociation.query.filter(
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (
+            BorrowsAssociation.bookid == bookid)).first()
+    quant = int(pags.quantity)
+    if bookBorrow is None:
+        borrows = Books.query.filter_by(book_id=book_id).first()
+        t = int(borrows.borrowcount) + 1
+        borrows.borrowcount = t
+        borrowBook = BorrowsAssociation(current_user.id, otheruserId, 1, bookid, 0, 1,1,date)
+        db.session.add(borrowBook)
+        db.session.commit()
+        return redirect(url_for('indibook',book_id=bookid, page_num=1))
+    elif bookBorrow is not None:
+        return redirect(url_for('indibook',book_id=bookid, page_num=1))
+    elif quant == 0:
+        return redirect(url_for('indibook',book_id=bookid, page_num=1))
+
+
+@app.route('/returnBook/<int:owner_id>/<int:book_id>', methods = ['POST', 'GET'])
+@login_required
+def returnBook(owner_id,book_id):
+    otheruserId = owner_id
+    bookid = book_id
+    confirmation = request.form['app']
+    pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
+    bookBorrow = BorrowsAssociation.query.filter(
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (
+            BorrowsAssociation.bookid == bookid)).first()
+    if owner_id != current_user.id and bookBorrow is not None:
+
+        bookBorrow.status = 3
+        bookBorrow.seen = 0
+        db.session.commit()
+        return redirect(url_for('notif'))
+    else:
+        bookBorrow = BorrowsAssociation.query.filter(
+         (BorrowsAssociation.shelf_id == current_user.id) & (
+            BorrowsAssociation.bookid == bookid)).first()
+
+        if confirmation == 'YES':
+            bookBorrow.status=4
+            db.session.commit()
+            quant = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id==otheruserId) & (ContainsAsscociation.book_id==bookid)).first()
+            totquant = int(quant.quantity)
+            finalTot = totquant+1
+            quant.quantity = finalTot
+            quant.availability = 'YES'
+            db.session.commit()
+            log = ActLogs(bookBorrow.user_id,current_user.id,4,bookBorrow.bookid)
+            db.session.add(log)
+            db.session.commit()
+
+        else:
+            bookBorrow.status= 5
+            bookBorrow.seen= 0
+            db.session.commit()
+
+    return redirect(url_for('notif'))
+
+@app.route('/returnBookDiff/<int:owner_id>/<int:book_id>', methods = ['POST', 'GET'])
+@login_required
+def returnBookDiff(owner_id,book_id):
+    otheruserId = owner_id
+    bookid = book_id
+    pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
+    bookBorrow = BorrowsAssociation.query.filter(
+            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (
+            BorrowsAssociation.bookid == bookid)).first()
+    if owner_id != current_user.id and bookBorrow is not None:
+
+        bookBorrow.status = 3
+        bookBorrow.seen = 0
+        db.session.commit()
+        return redirect(url_for('bookshelf',user_id=owner_id,page_num=1))
+    else:
+        bookBorrow = BorrowsAssociation.query.filter(
+         (BorrowsAssociation.shelf_id == current_user.id) & (
+            BorrowsAssociation.bookid == bookid)).first()
+        confirmation = request.form['app']
+        if confirmation == 'YES':
+            bookBorrow.status=4
+            db.session.commit()
+            quant = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id==otheruserId) & (ContainsAsscociation.book_id==bookid)).first()
+            totquant = int(quant.quantity)
+            finalTot = totquant+1
+            quant.quantity = finalTot
+            quant.availability = 'YES'
+            db.session.commit()
+            log = ActLogs(bookBorrow.user_id,current_user.id,4,bookBorrow.bookid)
+            db.session.add(log)
+            db.session.commit()
+
+        else:
+            bookBorrow.status= 5
+            bookBorrow.seen= 0
+            db.session.commit()
+
+    return redirect(url_for('bookshelf',user_id=owner_id,page_num=1))
+
+@app.route('/actLogs', defaults={'page_num': 1}, methods=['GET', 'POST'])
+@app.route('/actLogs/<int:page_num>', methods=['GET', 'POST'])
+@login_required
+def actLogs(page_num):
+    form = Search()
+    notSeen = BorrowsAssociation.query.filter(
+        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
+        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    for q in returnSeen:
+        q.seen = 0
+        db.session.commit()
+
+
+    countBorrower = 0
+    for s in seenBorrower.items:
+        countBorrower=countBorrower+1
+
+    countOwner = 0
+    for q in seenOwner.items:
+        countOwner=countOwner+1
+
+    count = 0
+    for r in notSeen.items:
+        count = count + 1
+
+    count = count+countOwner+countBorrower
+
+    pags = ActLogs.query.filter((ActLogs.shelf_id==current_user.id) | (ActLogs.user_id==current_user.id)).order_by(desc(ActLogs.logs)).paginate(page_num,8)
+
+    l = []
+    m = []
+    n = []
+    o = []
+    p = []
+    v = []
+    for q in pags.items:
+        book = Books.query.filter(Books.book_id == q.bookid).first()
+        t = User.query.filter(User.id == q.user_id).first()
+        s = User.query.filter(User.id == q.shelf_id).first()
+        l.append(book.title)
+        n.append(t.id)
+        m.append(t.first_name + ' ' + t.last_name)
+        o.append(t.username)
+        p.append(s.first_name + ' ' + s.last_name)
+        v.append(s.id)
+    return render_template('activitylogs.html', count=count,pags=pags,l=l,m=m,n=n,o=o,p=p,current_user=current_user,form=form)
+
 
 @app.route('/home/top_rated', defaults={'page_num': 1}, methods=['GET', 'POST'])
 @app.route('/home/top_rated/<int:page_num>', methods=['GET', 'POST'])
 @login_required
 def topbooks(page_num):
-    pass
+    form = Search()
+    top = BookRateTotal.query.join(Books).order_by(BookRateTotal.totalRate.desc()).paginate(page_num, 8)
+    authors = []
+    bookqnt = []
+    ids = []
+    book = []
+    edition = []
+    for bok in top.items:
+        s = WrittenByAssociation.query.filter_by(book_id=bok.bookRated).first()
+        ss = Books.query.filter_by(book_id=bok.bookRated).first()
+        qnty = ContainsAsscociation.query.filter_by(book_id=bok.bookRated).all()
+        quantity = 0
+        for q in qnty:
+            quantity = quantity + q.quantity
+        bookqnt.append(quantity)
+        book.append(ss.title)
+        edition.append(ss.edition)
+        ids.append(ss.book_id)
+        author = Author.query.filter_by(author_id=s.author_id).first()
+        authors.append(author.author_first_name + ' ' + author.author_last_name)
+    return render_template('topbooks.html', form=form, page_num=page_num, authors=authors, bookqnt=bookqnt, ids=ids,
+                           book=book, edition=edition, top=top)
 
 
 @app.route('/home/most_borrowed', defaults={'page_num': 1}, methods=['GET', 'POST'])
 @app.route('/home/most_borrowed<int:page_num>', methods=['GET', 'POST'])
 @login_required
 def mostborrow(page_num):
-    pass
+    form = Search()
+    most = Books.query.order_by(Books.borrowcount.desc()).paginate(page_num, 8)
+    mostauth = []
+    mostqnt = []
+    for mst in most.items:
+        s = WrittenByAssociation.query.filter_by(book_id=mst.book_id).first()
+        author = Author.query.filter_by(author_id=s.author_id).first()
+        mostauth.append(author.author_first_name + ' ' + author.author_last_name)
+        qnty = ContainsAsscociation.query.filter_by(book_id=mst.book_id).all()
+        quantity = 0
+        for q in qnty:
+            quantity = quantity + q.quantity
+        mostqnt.append(quantity)
+    return render_template('mostborrow.html', form=form, most=most, page_num=page_num, mostauth=mostauth,
+                           mostqnt=mostqnt)
 
 
 @app.route('/logout')

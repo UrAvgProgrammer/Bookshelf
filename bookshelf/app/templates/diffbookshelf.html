@@ -68,14 +68,14 @@
                    <ul class="list-inline">
                       <li><h1>Bookshelf</h1></li>
                        <li>
-                           <form action="{{ url_for('bookshelf', user_id=user_id, page_num=1) }}" method ='post'>
-                               {{ booksearch.csrf_token }}
-                               {{ wtf.form_field(booksearch.search, **{'placeholder':'Search a book ...'}) }}
-                           </form>
                        </li>
                    </ul>
                   </div>
           <div class="container-fluid">
+          <form action="{{ url_for('bookshelf', user_id=user_id, page_num=1) }}" method ='post' class="navbar-form navbar-right">
+                               {{ booksearch.csrf_token }}
+                               {{ wtf.form_field(booksearch.search, **{'placeholder':'Search a book ...'}) }}
+            </form><br><br><br>
                   <div class="row">
                         {% for book in books.items %}
                                  <div class="col-sm-4 bg-info" style="text-align: center;padding-top: 2%; padding-bottom: 2%">
@@ -96,10 +96,42 @@
                                         <textarea rows="4" cols="40" name="comment" id="comment" required></textarea><br>
                                         <input type="submit" class="btn btn-default" value="Rate and Comment">
                                     </form>
-                                   {% if book.quantity != 0 %}
-                                        <a href="/borrow/{{user_id}}/{{ book.containsbooks.book_id }}" class="btn btn-info" role="button">Borrow</a>
+                                   {% if book.quantity != 0 and z[loop.index-1] == current_user.id%}
+                                       <form action="/borrow/{{user_id}}/{{ book.containsbooks.book_id }}" method = "POST">
+                                        <label for="returndate">Return Date: </label><input id="returndate" name="returndate" type="date" required/>
+                                         <input type="submit" class="btn btn-info" value="Borrow">
+                                     </form>
+                                        <form action="/returnBookDiff/{{user_id}}/{{ book.containsbooks.book_id }}" method = "POST">
+                                         <input type="submit" class="btn btn-success" value="Return">
+                                     </form>
+
+                                     {% elif book.quantity != 0 and (z[loop.index-1] == 'None' or z[loop.index-1] != current_user.id) %}
+                                       <form action="/borrow/{{user_id}}/{{ book.containsbooks.book_id }}" method = "POST">
+                                        <label for="returndate">Return Date: </label><input  name="returndate" type="date" required/>
+                                         <input type="submit" class="btn btn-info" value="Borrow">
+                                     </form>
+                                        <form action="/returnBookDiff/{{user_id}}/{{ book.containsbooks.book_id }}" method = "POST">
+                                         <input type="submit" class="btn btn-success" value="Return" disabled>
+                                     </form>
+
+                                     {% elif book.quantity == 0 and (z[loop.index-1] == 'None' or z[loop.index-1] != current_user.id)  %}
+                                       <form action="/borrow/{{user_id}}/{{ book.containsbooks.book_id }}" method = "POST">
+                                        <label for="returndate">Return Date: </label><input  name="returndate" type="date" required/>
+                                         <input type="submit" class="btn btn-info" value="Borrow" disabled>
+                                     </form>
+                                        <form action="/returnBookDiff/{{user_id}}/{{ book.containsbooks.book_id }}" method = "POST">
+                                         <input type="submit" class="btn btn-success" value="Return" disabled>
+                                     </form>
+
+
                                     {% else %}
-                                        <button type="button" class="btn btn-info" disabled>Borrow</button>
+                                        <form action="/borrow/{{user_id}}/{{ book.containsbooks.book_id }}" method = "POST">
+                                        <label for="returndate">Return Date: </label><input name="returndate" type="date" disabled/>
+                                         <input type="submit" class="btn btn-info" value="Borrow" disabled>
+                                     </form>
+                                        <form action="/returnBookDiff/{{user_id}}/{{ book.containsbooks.book_id }}" method = "POST">
+                                         <input type="submit" class="btn btn-success" value="Return">
+                                     </form>
                                     {% endif %}
                                 </div>
                         {% endfor %}

@@ -44,7 +44,7 @@ class Bookshelf(db.Model):
 class Books(db.Model):
     __tablename__ = 'books'
     book_id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(50), nullable=False)
+    title = db.Column(db.TEXT, nullable=False)
     edition = db.Column(db.Integer)
     year_published = db.Column(db.String(4))
     isbn = db.Column(db.String(20))
@@ -150,15 +150,21 @@ class BorrowsAssociation(db.Model):
     status = db.Column(db.Integer)
     bookid = db.Column(db.Integer)
     seen = db.Column(db.Integer)
+    otherUserReturn = db.Column(db.Integer)
+    curUserReturn = db.Column(db.Integer)
+    returnDate = db.Column(db.TEXT)
     user = db.relationship('User', backref='borrowBookshelfs')
     bookshelf = db.relationship('Bookshelf', backref='borrowUsers')
 
-    def __init__(self, user_id='', shelf_id='', status='', bookid='', seen=''):
+    def __init__(self, user_id='', shelf_id='', status='', bookid='', seen='', otherUserReturn='',curUserReturn='',returnDate=''):
         self.user_id = user_id
         self.shelf_id = shelf_id
         self.status = status
         self.bookid = bookid
         self.seen = seen
+        self.otherUserReturn = otherUserReturn
+        self.curUserReturn = curUserReturn
+        self.returnDate = returnDate
 
 
 class BookRateAssociation(db.Model):
@@ -215,3 +221,18 @@ class UserRateTotal(db.Model):
         self.userRatee = userRatee
         self.userRater = userRater
         self.totalRate = totalRate
+
+class ActLogs(db.Model):
+    __tablename__ = 'actlogs'
+    logs = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    shelf_id = db.Column(db.Integer, db.ForeignKey('bookshelf.bookshelf_id'))
+    date = db.Column(db.DateTime, default=datetime.datetime.today)
+    status = db.Column(db.Integer)
+    bookid = db.Column(db.Integer)
+    def __init__(self, user_id='', shelf_id='', status='', bookid=''):
+        self.user_id = user_id
+        self.shelf_id = shelf_id
+        self.status = status
+        self.bookid = bookid
+

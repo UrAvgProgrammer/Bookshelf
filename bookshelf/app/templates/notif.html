@@ -40,13 +40,49 @@ Notification
     <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-1 main">
           <h1 class="page-header">Notifications</h1>
         <p>
+            {%for pag2 in pags2.items %}
+                {% if (pag2.shelf_id == curId and (pag2.curUserReturn == 0 or pag2.otherUserReturn == 1 )and pag2.status==2) %}
+                    <a href="/profile/{{n[loop.index-1]}}"> <h3>{{m[loop.index-1]}} (Username: {{o[loop.index-1]}})</h3>
+                    </a> has the {{l[loop.index-1]}} book <font color="red">due today</font>. {{pag2.returnDate}}
+                {% elif pag2.otherUserReturn == 1 and pag2.user_id == curId and pag2.status==2 %}
+                <form action="{{ url_for('returnBook',owner_id=pag2.shelf_id ,book_id=pag2.bookid) }}" method="POST">
+                    <a href="/profile/{{pag2.shelf_id}}"> <h3>{{pag2.bookshelf.owner.first_name}} {{pag2.bookshelf.owner.last_name}} (Username: {{pag2.bookshelf.owner.username}}) </h3>
+                    </a> needs the {{l[loop.index-1]}} <font color="red">book back today</font>. {{pag2.returnDate}}
+                    <input type="hidden" name="borrower" value="{{ pag2.user_id }}">
+                    <input type="hidden" name="borrowed" value="{{ pag2.shelf_id }}">
+                    <input type="hidden" name="book" value="{{ pag2.bookid }}">
+                    <br><button type="submit" name="app" value="YES" class="btn btn-success">Return</button>
+                </form>
+                {% elif pag2.shelf_id == curId and pag2.status==3 %}
+                <form action="{{ url_for('returnBook',owner_id=pag2.shelf_id ,book_id=pag2.bookid) }}" method="POST">
+                    <a href="/profile/{{pag2.shelf_id}}"> <h3>{{pag2.bookshelf.owner.first_name}} {{pag2.bookshelf.owner.last_name}} (Username: {{pag2.bookshelf.owner.username}}) </h3>
+                    </a> did {{m[loop.index-1]}} (Username: {{o[loop.index-1]}}) returned the {{l[loop.index-1]}}?. {{pag2.returnDate}}
+                    <input type="hidden" name="borrower" value="{{ pag2.user_id }}">
+                    <input type="hidden" name="borrowed" value="{{ pag2.shelf_id }}">
+                    <input type="hidden" name="book" value="{{ pag2.bookid }}">
+                    <br><button type="submit" name="app" value="YES" class="btn btn-success">YES</button>
+                    <button type="submit" name="app" value="NO" class="btn btn-danger">No</button>
+                </form>
+                {% elif pag2.otherUserReturn == 1 and pag2.user_id == curId and pag2.status==5 %}
+                <form action="{{ url_for('returnBook',owner_id=pag2.shelf_id ,book_id=pag2.bookid) }}" method="POST">
+                    <a href="/profile/{{pag2.shelf_id}}"> <h3>{{pag2.bookshelf.owner.first_name}} {{pag2.bookshelf.owner.last_name}} (Username: {{pag2.bookshelf.owner.username}}) </h3>
+                    </a><font color="red">Book Due</font>. You did not return the {{l[loop.index-1]}} book back on {{pag2.returnDate}}
+                    <input type="hidden" name="borrower" value="{{ pag2.user_id }}">
+                    <input type="hidden" name="borrowed" value="{{ pag2.shelf_id }}">
+                    <input type="hidden" name="book" value="{{ pag2.bookid }}">
+                    <br><button type="submit" name="app" value="YES" class="btn btn-success">Return</button>
+                </form>
+                {% endif %}
+            {% endfor %}
+
             {%for pag in pags.items %}
-                {% if pag.status == 2 %}
-                    <a href="/profile/{{i[loop.index-1]}}"> <h3>{{y[loop.index-1]}}</h3>
+                {% if pag.status == 2 or pag.status == 3 or pag.status == 4 or pag.status == 5   %}
+                    <a href="/profile/{{i[loop.index-1]}}"> <h3>{{y[loop.index-1]}} (Username: {{b[loop.index-1]}})</h3>
                     </a> accepted your request.
+
                 {% else %}
                 <form action="#" method="post">
-                    <a href="/profile/{{ pag.user.id }}"> <h3>{{ pag.user.first_name }} {{ pag.user.last_name }}</h3>
+                    <a href="/profile/{{ pag.user.id }}"> <h3>{{ pag.user.first_name }} {{ pag.user.last_name }} (Username: {{pag.user.username}})</h3>
                     </a>( {{ pag.date }} )<br>
                     wants to borrow <a href="/home/book/{{ pag.bookid }}/1">{{x[loop.index-1]}}</a><br>
                     <input type="hidden" name="borrower" value="{{ pag.user_id }}">
