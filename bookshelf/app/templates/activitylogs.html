@@ -7,7 +7,8 @@
 
 
 {% block body %}
-   <!-- COLLAPSIBLE NAVBAR -->
+
+<!-- COLLAPSIBLE NAVBAR -->
 <div class="collapse navbar-collapse navbar-fixed-top" id="alignment-example" style="background-color: #dfe2db">
 <!-- BRAND -->
 <div class="navbar-header">
@@ -45,7 +46,7 @@
 </li>
 </ul>
 </div>
- <!-- side bar -->
+  <!-- side bar -->
      <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
@@ -57,25 +58,68 @@
           <ul class="nav nav-sidebar">
             <li><a href="/profile/{{ current_user.id }}">Profile</a></li>
             <li><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf</a></li>
-            <li class="active"><a href="/profile/rate_and_comment/{{ current_user.id }}">Comments and Rating<span class="sr-only">(current)</span></a></li>
-            <li><a href="/actLogs">Activity Logs</a></li>
+            <li><a href="/profile/rate_and_comment/{{ current_user.id }}">Comments and Rating<span class="sr-only">(current)</span></a></li>
+            <li class="active"><a href="/actLogs">Activity Logs<span class="sr-only">(current)</span></a></li>
           </ul>
         </div>
           <!-- Contetnt -->
           <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
               <br>
-          <h1 class="page-header">Comments and Rating</h1>
-          <div class="row placeholders">
-              <h1>Overall Rating<br>{{ rating.totalRate }}<br></h1><br>
-              {% for s in rates %}
-              <a href="{{ url_for('profile', user_id=s.user_idRater) }}">{{x[loop.index-1]}}</a>:
-                  {% for com in range(s.rating) %} <span class="glyphicon glyphicon-star"></span> {% endfor %}
-                  {{ s.comment }}<br>
+          <h1 class="page-header">Activity Logs</h1>
+        <p>
+
+            {%for pag in pags.items %}
+                {% if pag.status == 2 and pag.user_id == current_user.id %}
+                    <h4>(Date: {{pag.date}})</h4>
+                    <h4>You Borrowed the book {{l[loop.index-1]}} from</h4> <a href="/profile/{{p[loop.index-1]}}"> <h4>{{p[loop.index-1]}} </h4></a>
+                    <br>
+
+                {% elif pag.status == 2 and pag.shelf_id == current_user.id %}
+                    <h4>(Date: {{pag.date}})
+                        You accepted the book {{l[loop.index-1]}} to be borrowed by</h4><a href="/profile/{{m[loop.index-1]}}"> <h4>{{m[loop.index-1]}} </h4>
+                    </a><br>
+
+                {% elif pag.status == 4 and pag.shelf_id == current_user.id %}
+                    <h4>(Date: {{pag.date}})
+                        The book {{l[loop.index-1]}} was returned by</h4> <a href="/profile/{{m[loop.index-1]}}"> <h4>{{m[loop.index-1]}} </h4>
+                    </a><br>
+                {% elif pag.status == 4 and pag.user_id == current_user.id %}
+                    <h4>(Date: {{pag.date}})
+                        You returned the book {{l[loop.index-1]}} to</h4>  <a href="/profile/{{p[loop.index-1]}}"> <h4>{{p[loop.index-1]}} </h4>
+                    </a><br>
+                {% endif %}
+            {% endfor %}
+        </p>
+                <div class="footer" style="text-align: center">
+              {% for page in pags.iter_pages(left_edge=3,right_edge=3,left_current=3,right_current=3) %}
+                    {% if page %}
+                         <a href="{{ url_for('actLogs',page_num=page) }}">{{ page }}</a>
+                    {% else %}
+                        ....
+                    {% endif %}
               {% endfor %}
-          </div>
-          </div>
+           </div>
+    </div>
         </div>
 </div><!-- end of side bar -->
 
 
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

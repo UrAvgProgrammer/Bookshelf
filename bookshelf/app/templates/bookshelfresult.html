@@ -7,40 +7,45 @@
 
 
 {% block body %}
-    <!-- Nav Bar -->
-    <nav class="navbar navbar-default navbar-fixed-top">
-      <div class="container-fluid">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="/home">Bookshelf</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="/home"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-            <li><a href="/profile/{{ current_user.id }}"><span class="glyphicon glyphicon-user"></span> Profile</a></li>
-            <li><a href="/notification"><span class="glyphicon glyphicon-bell"></span> Notification
-            {% if count %}
-                <span class="badge pull-right">{{ count }}</span>
-            {% endif %}</a></li>
-            <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
-          </ul>
-          <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right">
+   <!-- COLLAPSIBLE NAVBAR -->
+<div class="collapse navbar-collapse navbar-fixed-top" id="alignment-example" style="background-color: #dfe2db">
+<!-- BRAND -->
+<div class="navbar-header">
+<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#alignment-example" aria-expanded="false">
+<span class="sr-only">Toggle navigation</span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+<span class="icon-bar"></span>
+</button>
+<a class="navbar-brand" href="{{ url_for('home') }}" style="color: gray"> Bookshelf</a>
+</div>
+<!-- Links -->
+<ul class="nav navbar-nav navbar-right">
+<li>
+    <form method="post" action="{{ url_for('home') }}" class="navbar-form navbar-right" style="padding-right: 430px">
             <div class="form-group">
             <span class="glyphicon glyphicon-search"></span>
                 {{ form.csrf_token }}
-                {{ wtf.form_field(form.search) }}
+                {{ wtf.form_field(form.search, **{'placeholder':'Search a book ...'}) }}
             </div>
-        <button type="submit" class="btn btn-default" value="submit">Submit</button>
-      </form>
-        </div>
-      </div>
-    </nav> <!-- end of nav bar -->
-    <!-- side bar -->
+</form>
+</li>
+<li><a href="/notification" style="color: gray"><span class="glyphicon glyphicon-bell" style="color: gray"></span> Notification
+            {% if count %}
+                <span class="badge pull-right">{{ count }}</span>
+            {% endif %}
+            </a></li>
+<li class="dropdown">
+<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+    <span class="glyphicon glyphicon-align-justify" style="color: gray"></span></a>
+<ul class="dropdown-menu" aria-labelledby="about-us">
+<li><a href="/profile/{{ current_user.id }}" style="color: gray"><span class="glyphicon glyphicon-user"></span> {{current_user.first_name}}</a></li>
+<li><a href="/logout" style="color: gray"><span class="glyphicon glyphicon-log-out"></span> Log out</a></li>
+</ul>
+</li>
+</ul>
+</div>
+ <!-- side bar -->
      <div class="container-fluid">
       <div class="row">
         <div class="col-sm-3 col-md-2 sidebar">
@@ -52,7 +57,8 @@
           <ul class="nav nav-sidebar">
             <li><a href="/profile/{{ current_user.id }}">Profile</a></li>
             <li class="active"><a href="/profile/bookshelf/{{ current_user.id }}/1">Bookshelf<span class="sr-only">(current)</span></a></li>
-            <li><a href="/profile/rate_and_comment">Comments and rating</a></li>
+            <li><a href="/profile/rate_and_comment/1">Comments and rating</a></li>
+            <li><a href="/actLogs">Activity Logs</a></li>
           </ul>
         </div>
           <!-- Contetnt -->
@@ -68,30 +74,36 @@
               {% else %}
                   <div class="page-header">
                    <ul class="list-inline">
-                      <li><h1>Bookshelf</h1></li>
+                      <hr><li><h1>Bookshelf</h1></li>
                        <li>
-                           <form action="{{ url_for('bookshelf', user_id=current_user.id, page_num=1) }}" method ='post'>
-                               {{ booksearch.csrf_token }}
-                               {{ wtf.form_field(booksearch.search) }}
-                           </form>
                        </li>
-                      <li><a href="/profile/bookshelf/add" class="btn btn-link" role="button">Add book</a></li>
+                      <li>
                    </ul>
                   </div>
           <div class="row placeholders">
+          <form action="{{ url_for('bookshelf', user_id=current_user.id, page_num=1) }}" method ='post' class="navbar-form navbar-right"    >
+                               {{ booksearch.csrf_token }}
+                               {{ wtf.form_field(booksearch.search, **{'placeholder':'Search a book ...'}) }}
+          </form>
+          <a href="/profile/bookshelf/add" class="btn btn-default" role="button" style="float: left;">Add book</a></li>
+          <br>
+          <br>
+          <br>
                   <div class="row">
                         {% for book in books.items %}
-                            <div class="col-xs-6 col-sm-3">
-                                <div class="square">
+                           <div class="col-sm-4 bg-info" style="text-align: center;padding-top: 2%; padding-bottom: 2%">
                                 <img class ="img-square" src="{{ url_for('static',filename='image/book.png') }}" width="150" height="150" alt="Generic placeholder thumbnail">
                                 <a href="/book/{{ book.book_id }}"><h3>{{ book.containsbooks.title }}</h3></a>
                                 <span class="text-muted">Edition: {{ book.containsbooks.edition }}</span><br>
                                 <span class="text-muted">Type: {{ book.containsbooks.types }}</span><br>
                                 <span class="text-muted">Year Published: {{ book.containsbooks.year_published }}</span><br>
                                 <span class="text-muted">Author: {{x[loop.index-1]}} {{y[loop.index-1]}}</span><br>
-                                <a href="#" class="btn btn-info" role="button">Delete</a>
-                                </div>
-                            </div>
+                                {% if book.quantity != 0 %}
+                                <a href="/profile/bookshelf/delete/{{ book.containsbooks.book_id }}" class="btn btn-danger" role="button" >Delete</a>
+                                {% elif book.quantity == 0 %}
+                                    <button type="button" class="btn btn-danger" disabled>Delete</button>
+                                {% endif %}
+                           </div>
                         {% endfor %}
                     </div>
             <div class="footer">
