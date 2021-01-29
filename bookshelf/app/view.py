@@ -143,16 +143,16 @@ def signup():
 @login_required
 def home(page_num):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
-        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
-        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 1) and (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.status == 2) and
+        (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3) and (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) and (BorrowsAssociation.status==5) and (BorrowsAssociation.seen==0))).paginate(1, 8)
 
-    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
-    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
 
-    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn == 0))
     for q in returnSeen:
         q.seen = 0
         db.session.commit()
@@ -241,16 +241,16 @@ def home(page_num):
 @login_required
 def profile(user_id):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
-        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
-        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 1) and (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.status == 2) and
+        (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3) and (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) and (BorrowsAssociation.status==5) and (BorrowsAssociation.seen==0))).paginate(1, 8)
 
-    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
-    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
 
-    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn == 0))
     for q in returnSeen:
         q.seen = 0
         db.session.commit()
@@ -281,16 +281,16 @@ def profile(user_id):
 @login_required
 def editprof(user_id):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
-        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
-        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 1) and (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.status == 2) and
+        (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3) and (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) and (BorrowsAssociation.status==5) and (BorrowsAssociation.seen==0))).paginate(1, 8)
 
-    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
-    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
 
-    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn == 0))
     for q in returnSeen:
         q.seen = 0
         db.session.commit()
@@ -327,16 +327,16 @@ def editprof(user_id):
 @login_required
 def indibook(book_id, page_num):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
-        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
-        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 1) and (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.status == 2) and
+        (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3) and (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) and (BorrowsAssociation.status==5) and (BorrowsAssociation.seen==0))).paginate(1, 8)
 
-    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
-    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
 
-    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn == 0))
     for q in returnSeen:
         q.seen = 0
         db.session.commit()
@@ -383,16 +383,16 @@ def indibook(book_id, page_num):
 @login_required
 def bookshelf(user_id, page_num):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
-        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
-        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 1) and (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.status == 2) and
+        (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3) and (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) and (BorrowsAssociation.status==5) and (BorrowsAssociation.seen==0))).paginate(1, 8)
 
-    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
-    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
 
-    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn == 0))
     for q in returnSeen:
         q.seen = 0
         db.session.commit()
@@ -452,16 +452,16 @@ def bookshelf(user_id, page_num):
 @login_required
 def bookshelfsearch(user_id, page_num, searchid):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
-        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
-        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 1) and (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.status == 2) and
+        (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3) and (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) and (BorrowsAssociation.status==5) and (BorrowsAssociation.seen==0))).paginate(1, 8)
 
-    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
-    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
 
-    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn == 0))
     for q in returnSeen:
         q.seen = 0
         db.session.commit()
@@ -485,7 +485,7 @@ def bookshelfsearch(user_id, page_num, searchid):
     if current_user.id == user_id:
         search1 = '%'+searchid+'%'
         books = ContainsAsscociation.query.join(Books).filter(
-            (ContainsAsscociation.shelf_id == current_user.id) & ((Books.title.like(search1)) | (
+            (ContainsAsscociation.shelf_id == current_user.id) and ((Books.title.like(search1)) | (
              Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (
              Books.isbn.like(search1)))).paginate(page_num, 6)
         x = []
@@ -500,7 +500,7 @@ def bookshelfsearch(user_id, page_num, searchid):
     else:
         search1 = '%' + searchid + '%'
         books = ContainsAsscociation.query.join(Books).filter(
-            (ContainsAsscociation.shelf_id == user_id) & ((Books.title.like(search1)) | (
+            (ContainsAsscociation.shelf_id == user_id) and ((Books.title.like(search1)) | (
                 Books.year_published.like(search1)) | (Books.types.like(search1)) | (Books.edition.like(search1)) | (
                                                                       Books.isbn.like(search1)))).paginate(page_num, 6)
         x = []
@@ -524,16 +524,16 @@ def bookshelfsearch(user_id, page_num, searchid):
 @login_required
 def ratencomm(user_id):
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
-        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
-        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 1) and (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.status == 2) and
+        (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3) and (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) and (BorrowsAssociation.status==5) and (BorrowsAssociation.seen==0))).paginate(1, 8)
 
-    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
-    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
 
-    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn == 0))
     for q in returnSeen:
         q.seen = 0
         db.session.commit()
@@ -573,7 +573,7 @@ def ratencomm(user_id):
         if request.method == 'POST':
             rateNew = request.form['rateUser']
             comment = request.form['comment']
-            rateOld = UserRateAssociation.query.filter((UserRateAssociation.user_idRatee == otheruserId) & (
+            rateOld = UserRateAssociation.query.filter((UserRateAssociation.user_idRatee == otheruserId) and (
                 UserRateAssociation.user_idRater == current_user.id)).first()
 
             if rateOld is not None:
@@ -662,13 +662,13 @@ def notif():
     curId = current_user.id
     form = Search()
     unseen = BorrowsAssociation.query.filter(
-        (((BorrowsAssociation.shelf_id == current_user.id) & ((BorrowsAssociation.status == 1)|(BorrowsAssociation.status==3)))) | (
-            (BorrowsAssociation.user_id == current_user.id) & ((BorrowsAssociation.status == 2) | (BorrowsAssociation.status==5))) | ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 2) & (BorrowsAssociation.otherUserReturn==1)))
+        (((BorrowsAssociation.shelf_id == current_user.id) and ((BorrowsAssociation.status == 1)|(BorrowsAssociation.status==3)))) | (
+            (BorrowsAssociation.user_id == current_user.id) and ((BorrowsAssociation.status == 2) | (BorrowsAssociation.status==5))) | ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 2) and (BorrowsAssociation.otherUserReturn==1)))
 
     unseenOtherUserReturn = BorrowsAssociation.query.filter(
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.otherUserReturn==0) & (BorrowsAssociation.status == 2))
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.otherUserReturn==0) and (BorrowsAssociation.status == 2))
 
-    unseenCurUserReturn = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.curUserReturn==1) & (BorrowsAssociation.status==2))
+    unseenCurUserReturn = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.curUserReturn==1) and (BorrowsAssociation.status==2))
 
     for q in unseen:
         q.seen = 1
@@ -687,18 +687,18 @@ def notif():
 
 
 
-    pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) &
+    pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) and
                                            (BorrowsAssociation.shelf_id == current_user.id) |
-                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status == 3) | (BorrowsAssociation.status == 4) | (BorrowsAssociation.status == 5))&
+                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status == 3) | (BorrowsAssociation.status == 4) | (BorrowsAssociation.status == 5))and
                                            (BorrowsAssociation.user_id == current_user.id))
                                            ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
 
-    pags2 = BorrowsAssociation.query.filter((((BorrowsAssociation.status == 1) | (BorrowsAssociation.otherUserReturn==1)) &
+    pags2 = BorrowsAssociation.query.filter((((BorrowsAssociation.status == 1) | (BorrowsAssociation.otherUserReturn==1)) and
                                            (BorrowsAssociation.shelf_id == current_user.id)) |
-                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status==5) )&
+                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status==5) )and
                                            (BorrowsAssociation.user_id == current_user.id)) |
-                                            ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)) |
-                                            ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3)) ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
+                                            ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)) |
+                                            ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3)) ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
 
     x = []
     y = []
@@ -731,7 +731,7 @@ def notif():
         book = request.form['book']
 
         approved = BorrowsAssociation.query.filter(
-            (BorrowsAssociation.user_id == borrowerId) & (BorrowsAssociation.shelf_id == borrowedId) & (
+            (BorrowsAssociation.user_id == borrowerId) and (BorrowsAssociation.shelf_id == borrowedId) and (
             BorrowsAssociation.bookid == book)).first()
 
 
@@ -750,18 +750,18 @@ def notif():
             approved.status = 0
             db.session.commit()
 
-        pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) &
+        pags = BorrowsAssociation.query.filter((BorrowsAssociation.status == 1) and
                                                (BorrowsAssociation.shelf_id == current_user.id) |
-                                               ((BorrowsAssociation.status == 2) | (BorrowsAssociation.status == 3) | (BorrowsAssociation.status == 4) | (BorrowsAssociation.status == 5)) &
+                                               ((BorrowsAssociation.status == 2) | (BorrowsAssociation.status == 3) | (BorrowsAssociation.status == 4) | (BorrowsAssociation.status == 5)) and
                                                (BorrowsAssociation.user_id == current_user.id)
                                                ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
 
-        pags2 = BorrowsAssociation.query.filter((((BorrowsAssociation.status == 1) | (BorrowsAssociation.otherUserReturn==1)) &
+        pags2 = BorrowsAssociation.query.filter((((BorrowsAssociation.status == 1) | (BorrowsAssociation.otherUserReturn==1)) and
                                            (BorrowsAssociation.shelf_id == current_user.id)) |
-                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status==5) )&
+                                           (((BorrowsAssociation.status == 2) | (BorrowsAssociation.status==5) )and
                                            (BorrowsAssociation.user_id == current_user.id)) |
-                                            ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)) |
-                                            ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3)) ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
+                                            ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)) |
+                                            ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3)) ).order_by(desc(BorrowsAssociation.borrowed)).paginate(1, 8)
 
         x = []
         for p in pags.items:
@@ -803,16 +803,16 @@ def delbook(book_id):
 @login_required
 def addbook():
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
-        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
-        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 1) and (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.status == 2) and
+        (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3) and (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) and (BorrowsAssociation.status==5) and (BorrowsAssociation.seen==0))).paginate(1, 8)
 
-    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
-    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
 
-    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn == 0))
     for q in returnSeen:
         q.seen = 0
         db.session.commit()
@@ -843,10 +843,10 @@ def addbook():
         authorFirstNew = form.author_firstname.data
         authorLastNew = form.author_lastname.data
         pub = '%' + str(publisherNew) + '%'
-        books = Books.query.filter((Books.title == titleNew) & (Books.edition == editionNew) & (Books.year_published == yearNew) & (
+        books = Books.query.filter((Books.title == titleNew) and (Books.edition == editionNew) and (Books.year_published == yearNew) and (
             Books.isbn == isbnNew)).first()
         publishers = Publisher.query.filter((Publisher.publisher_name.like(pub))).first()
-        author = Author.query.filter((Author.author_first_name == authorFirstNew) & (Author.author_last_name == authorLastNew)).first()
+        author = Author.query.filter((Author.author_first_name == authorFirstNew) and (Author.author_last_name == authorLastNew)).first()
         if (books is None) or (publishers is None) or (author is None):
             if publishers is None:
                 pubbook = Publisher(publisherNew)
@@ -882,7 +882,7 @@ def addbook():
             db.session.commit()
             return redirect(url_for('bookshelf', user_id=current_user.id, page_num=1, count=count))
         else:
-            bookquantity = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id == current_user.id) & (
+            bookquantity = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id == current_user.id) and (
                                                               ContainsAsscociation.book_id == books.book_id)).first()
             if bookquantity is None:
                 contain = ContainsAsscociation(current_user.id, books.book_id, 1, 'YES')
@@ -902,7 +902,7 @@ def addbook():
 def ratebook(book_id):
     rate = request.form['rateUser']
     comment = request.form['comment']
-    rateOld = BookRateAssociation.query.filter((BookRateAssociation.user_id == current_user.id) & (BookRateAssociation.book_id == book_id)).first()
+    rateOld = BookRateAssociation.query.filter((BookRateAssociation.user_id == current_user.id) and (BookRateAssociation.book_id == book_id)).first()
     if rateOld is not None:
         rateOld.rating = rate
         rateOld.comment = comment
@@ -982,7 +982,7 @@ def borrow(owner_id, book_id):
     date = request.form['returndate']
     pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
     bookBorrow = BorrowsAssociation.query.filter(
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.shelf_id == otheruserId) and (
             BorrowsAssociation.bookid == bookid)).first()
     quant = int(pags.quantity)
     if bookBorrow is None:
@@ -1006,7 +1006,7 @@ def borrowInd(owner_id, book_id):
     date = request.form['returndate']
     pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
     bookBorrow = BorrowsAssociation.query.filter(
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.shelf_id == otheruserId) and (
             BorrowsAssociation.bookid == bookid)).first()
     quant = int(pags.quantity)
     if bookBorrow is None:
@@ -1032,7 +1032,7 @@ def returnBook(owner_id,book_id):
     borrower = request.form['borrower']
     pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
     bookBorrow = BorrowsAssociation.query.filter(
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (
+            (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.shelf_id == otheruserId) and (
             BorrowsAssociation.bookid == bookid)).first()
     if owner_id != current_user.id and bookBorrow is not None:
 
@@ -1042,13 +1042,13 @@ def returnBook(owner_id,book_id):
         return redirect(url_for('notif'))
     else:
         bookBorrow = BorrowsAssociation.query.filter(
-         (BorrowsAssociation.shelf_id == current_user.id) & (
-            BorrowsAssociation.bookid == bookid) & (BorrowsAssociation.user_id==borrower)).first()
+         (BorrowsAssociation.shelf_id == current_user.id) and (
+            BorrowsAssociation.bookid == bookid) and (BorrowsAssociation.user_id==borrower)).first()
 
         if confirmation == 'YES':
             bookBorrow.status=4
             db.session.commit()
-            quant = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id==otheruserId) & (ContainsAsscociation.book_id==bookid)).first()
+            quant = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id==otheruserId) and (ContainsAsscociation.book_id==bookid)).first()
             totquant = int(quant.quantity)
             finalTot = totquant+1
             quant.quantity = finalTot
@@ -1073,7 +1073,7 @@ def returnBookDiff(owner_id,book_id):
     borrower = request.form['borrower']
     pags = ContainsAsscociation.query.filter(ContainsAsscociation.shelf_id == otheruserId).first()
     bookBorrow = BorrowsAssociation.query.filter(
-            (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.shelf_id == otheruserId) & (
+            (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.shelf_id == otheruserId) and (
             BorrowsAssociation.bookid == bookid)).first()
     if owner_id != current_user.id and bookBorrow is not None:
 
@@ -1083,13 +1083,13 @@ def returnBookDiff(owner_id,book_id):
         return redirect(url_for('bookshelf',user_id=owner_id,page_num=1))
     else:
         bookBorrow = BorrowsAssociation.query.filter(
-         (BorrowsAssociation.shelf_id == current_user.id) & (
-            BorrowsAssociation.bookid == bookid) & (BorrowsAssociation.user_id==borrower)).first()
+         (BorrowsAssociation.shelf_id == current_user.id) and (
+            BorrowsAssociation.bookid == bookid) and (BorrowsAssociation.user_id==borrower)).first()
         confirmation = request.form['app']
         if confirmation == 'YES':
             bookBorrow.status=4
             db.session.commit()
-            quant = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id==otheruserId) & (ContainsAsscociation.book_id==bookid)).first()
+            quant = ContainsAsscociation.query.filter((ContainsAsscociation.shelf_id==otheruserId) and (ContainsAsscociation.book_id==bookid)).first()
             totquant = int(quant.quantity)
             finalTot = totquant+1
             quant.quantity = finalTot
@@ -1112,16 +1112,16 @@ def returnBookDiff(owner_id,book_id):
 def actLogs(page_num):
     form = Search()
     notSeen = BorrowsAssociation.query.filter(
-        ((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.status == 1) & (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==1)) | (
-        (BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.status == 2) &
-        (BorrowsAssociation.seen == 0) & (BorrowsAssociation.otherUserReturn==0)) |
-        ((BorrowsAssociation.shelf_id==current_user.id) & (BorrowsAssociation.status==3) & (BorrowsAssociation.seen==0)) |
-        ((BorrowsAssociation.user_id==current_user.id) & (BorrowsAssociation.status==5) & (BorrowsAssociation.seen==0))).paginate(1, 8)
+        ((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.status == 1) and (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==1)) | (
+        (BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.status == 2) and
+        (BorrowsAssociation.seen == 0) and (BorrowsAssociation.otherUserReturn==0)) |
+        ((BorrowsAssociation.shelf_id==current_user.id) and (BorrowsAssociation.status==3) and (BorrowsAssociation.seen==0)) |
+        ((BorrowsAssociation.user_id==current_user.id) and (BorrowsAssociation.status==5) and (BorrowsAssociation.seen==0))).paginate(1, 8)
 
-    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
-    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
+    seenBorrower = BorrowsAssociation.query.filter((BorrowsAssociation.user_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn==0)).paginate(1,8)
+    seenOwner = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.curUserReturn==1)).paginate(1,8)
 
-    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) & (BorrowsAssociation.returnDate == datetime.datetime.now().date()) & (BorrowsAssociation.status==2) & (BorrowsAssociation.otherUserReturn == 0))
+    returnSeen = BorrowsAssociation.query.filter((BorrowsAssociation.shelf_id == current_user.id) and (BorrowsAssociation.returnDate == datetime.datetime.now().date()) and (BorrowsAssociation.status==2) and (BorrowsAssociation.otherUserReturn == 0))
     for q in returnSeen:
         q.seen = 0
         db.session.commit()
@@ -1141,7 +1141,7 @@ def actLogs(page_num):
 
     count = count+countOwner+countBorrower
 
-    pags = ActLogs.query.filter((ActLogs.shelf_id==current_user.id) | (ActLogs.user_id==current_user.id)).order_by(desc(ActLogs.logs)).paginate(page_num,8)
+    pags = ActLogs.query.filter((ActLogs.shelf_id==current_user.id) or (ActLogs.user_id==current_user.id)).order_by(desc(ActLogs.logs)).paginate(page_num,8)
 
     l = []
     m = []

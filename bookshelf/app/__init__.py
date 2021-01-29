@@ -9,8 +9,8 @@ db = SQLAlchemy(app)
 app.config.from_pyfile('config.py')
 bootstrap = Bootstrap(app)
 
-from models import *
-from forms import *
+from .models import *
+from .forms import *
 from app import view
 
 db.create_all()
